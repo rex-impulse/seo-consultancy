@@ -242,6 +242,19 @@ export default function AuditPage() {
               </div>
             )}
 
+            {/* Teaser PDF Preview */}
+            <div className="py-6 border-b border-gray-100">
+              <p className="text-[11px] text-gray-400 uppercase tracking-wider mb-4">Preview Report</p>
+              <div className="w-full rounded-md overflow-hidden border border-gray-200" style={{ height: '600px' }}>
+                <iframe
+                  src={`/api/audit/${id}/pdf?type=teaser`}
+                  className="w-full h-full"
+                  title="Teaser Report Preview"
+                />
+              </div>
+              <p className="text-[11px] text-gray-400 mt-2 text-center">Scroll to preview. Unlock the full 20-page report below.</p>
+            </div>
+
             {/* What's in the full report */}
             <div className="py-6 border-b border-gray-100">
               <p className="text-[11px] text-gray-400 uppercase tracking-wider mb-4">Full Report Includes</p>
