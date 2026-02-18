@@ -4,10 +4,11 @@ export interface TeaserData {
   overallScore: number;
   overallGrade: string;
   categories: {
-    technical: { score: number; grade: string };
-    visibility: { score: number; grade: string };
     geo: { score: number; grade: string };
+    technical: { score: number; grade: string };
     content: { score: number; grade: string };
+    visibility: { score: number; grade: string };
+    onpage?: { score: number; grade: string };
   };
   topIssues: {
     severity: 'critical' | 'high' | 'medium';
@@ -19,27 +20,23 @@ export interface TeaserData {
     totalIssues: number;
     pagesAnalyzed: number;
     quickWins: number;
-    estTrafficImpact: string;
+    estTrafficLoss: string;
   };
   auditId: string;
 }
 
 function gradeColor(grade: string): string {
-  if (grade.startsWith('A')) return '#10b981';
-  if (grade.startsWith('B')) return '#3b82f6';
-  if (grade.startsWith('C')) return '#eab308';
-  if (grade.startsWith('D')) return '#f97316';
-  return '#ef4444';
+  if (grade.startsWith('A')) return '#34d399';
+  if (grade.startsWith('B')) return '#60a5fa';
+  if (grade.startsWith('C')) return '#facc15';
+  if (grade.startsWith('D')) return '#fb923c';
+  return '#f87171';
 }
 
 function severityIcon(s: string): string {
   if (s === 'critical') return '🔴';
   if (s === 'high') return '🟠';
   return '🟡';
-}
-
-function barWidth(score: number): string {
-  return `${Math.max(score, 5)}%`;
 }
 
 export function renderTeaserHtml(data: TeaserData): string {
@@ -50,67 +47,69 @@ export function renderTeaserHtml(data: TeaserData): string {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SEO & GEO Audit Preview — ${data.url}</title>
+<title>AI Search Readiness Report — ${data.url}</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400&display=swap');
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Inter', sans-serif; color: #374151; line-height: 1.6; background: white; }
-  @page { size: A4; margin: 20mm 15mm; }
-  .page { page-break-after: always; min-height: 100vh; padding: 40px; }
-  .page:last-child { page-break-after: auto; }
-  .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e5e7eb; padding-bottom: 16px; margin-bottom: 32px; }
-  .logo { font-size: 20px; font-weight: 700; color: #111827; }
-  .logo span { color: #10b981; }
-  .meta { font-size: 12px; color: #9ca3af; text-align: right; }
-  .grade-container { text-align: center; margin: 32px 0; }
-  .grade-circle { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; width: 120px; height: 120px; border-radius: 50%; border: 4px solid ${gc}; }
+  body { font-family: 'Inter', sans-serif; color: #e5e5e5; background: #0a0a0a; line-height: 1.5; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  .page { max-width: 640px; margin: 0 auto; padding: 48px 32px; }
+  .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #262626; padding-bottom: 16px; margin-bottom: 40px; }
+  .brand { font-size: 13px; font-weight: 600; color: #fff; }
+  .meta { font-size: 10px; color: #525252; text-align: right; letter-spacing: 0.1em; text-transform: uppercase; }
+
+  /* Grade */
+  .grade-wrap { text-align: center; margin: 40px 0; }
+  .grade-circle { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; width: 112px; height: 112px; border-radius: 50%; border: 2px solid ${gc}; }
   .grade-letter { font-size: 36px; font-weight: 700; color: ${gc}; }
-  .grade-score { font-size: 14px; color: #6b7280; }
-  .website { font-size: 14px; color: #6b7280; margin-top: 8px; }
-  .categories { margin: 24px 0; }
-  .cat-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid #f3f4f6; }
-  .cat-label { width: 120px; font-size: 13px; font-weight: 500; color: #374151; }
-  .cat-grade { width: 30px; font-weight: 700; font-size: 14px; text-align: center; }
-  .cat-bar { flex: 1; height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; }
-  .cat-bar-fill { height: 100%; border-radius: 4px; }
-  .cat-pct { width: 40px; font-size: 12px; color: #6b7280; text-align: right; }
-  .section-title { font-size: 18px; font-weight: 700; color: #111827; margin: 24px 0 16px; display: flex; align-items: center; gap: 8px; }
-  .issue { border-left: 4px solid; padding: 12px 16px; margin: 12px 0; background: #f9fafb; border-radius: 0 8px 8px 0; }
-  .issue.critical { border-color: #ef4444; }
-  .issue.high { border-color: #f97316; }
-  .issue.medium { border-color: #eab308; }
-  .issue-header { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
-  .issue-num { font-size: 12px; font-weight: 700; color: #6b7280; }
-  .issue-title { font-size: 14px; font-weight: 600; color: #111827; }
-  .issue-desc { font-size: 12px; color: #4b5563; }
-  .issue-impact { font-size: 11px; color: #6b7280; margin-top: 4px; font-style: italic; }
-  .stats-row { display: flex; justify-content: space-around; background: #f9fafb; border-radius: 8px; padding: 16px; margin-top: 24px; }
-  .stat { text-align: center; }
-  .stat-value { font-size: 20px; font-weight: 700; color: #111827; }
-  .stat-label { font-size: 11px; color: #6b7280; }
-  .toc { margin: 16px 0; }
-  .toc-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f3f4f6; font-size: 13px; }
-  .toc-section { color: #374151; }
-  .toc-status { color: #9ca3af; font-size: 12px; }
-  .cta-box { background: linear-gradient(135deg, #0f172a, #1e293b); color: white; border-radius: 12px; padding: 32px; text-align: center; margin: 32px 0; }
-  .cta-title { font-size: 18px; font-weight: 700; }
-  .cta-desc { font-size: 13px; color: #9ca3af; margin-top: 8px; }
-  .cta-btn { display: inline-block; background: #10b981; color: white; font-weight: 600; padding: 12px 32px; border-radius: 8px; margin-top: 16px; text-decoration: none; font-size: 15px; }
-  .cta-sub { font-size: 11px; color: #6b7280; margin-top: 12px; }
-  .footer { border-top: 1px solid #e5e7eb; padding-top: 12px; margin-top: 24px; font-size: 10px; color: #9ca3af; text-align: center; }
+  .grade-score { font-size: 10px; color: #525252; font-family: 'JetBrains Mono', monospace; }
+  .url { font-size: 11px; color: #525252; margin-top: 8px; }
+
+  /* Critical issue */
+  .critical-box { border: 1px solid #451a1a; background: #1a0a0a; border-radius: 6px; padding: 16px; margin: 24px 0; }
+  .critical-label { font-size: 10px; color: #f87171; text-transform: uppercase; letter-spacing: 0.1em; font-family: 'JetBrains Mono', monospace; }
+  .critical-title { font-size: 14px; font-weight: 600; color: #fff; margin-top: 8px; }
+  .critical-desc { font-size: 11px; color: #737373; margin-top: 4px; }
+
+  /* Categories */
+  .cat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 24px 0; }
+  .cat-card { border: 1px solid #262626; border-radius: 6px; padding: 12px; text-align: center; }
+  .cat-label { font-size: 9px; color: #525252; font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.05em; }
+  .cat-grade { font-size: 20px; font-weight: 700; margin-top: 4px; }
+  .cat-score { font-size: 9px; color: #404040; font-family: 'JetBrains Mono', monospace; }
+
+  /* Issues */
+  .issue { border: 1px solid #262626; border-radius: 6px; padding: 12px; margin: 8px 0; display: flex; gap: 10px; align-items: flex-start; }
+  .issue-text { flex: 1; }
+  .issue-title { font-size: 12px; font-weight: 500; color: #fff; }
+  .issue-impact { font-size: 10px; color: #525252; margin-top: 2px; }
+
+  /* Locked sections */
+  .section-label { font-size: 10px; color: #525252; text-transform: uppercase; letter-spacing: 0.1em; font-family: 'JetBrains Mono', monospace; margin: 24px 0 12px; }
+  .locked-row { display: flex; justify-content: space-between; align-items: center; border: 1px solid #262626; border-radius: 6px; padding: 12px; margin: 6px 0; }
+  .locked-name { font-size: 12px; color: #a3a3a3; }
+  .locked-badge { font-size: 9px; color: #404040; font-family: 'JetBrains Mono', monospace; }
+
+  /* CTA */
+  .cta { background: #171717; border: 1px solid #262626; border-radius: 8px; padding: 32px; text-align: center; margin: 32px 0; }
+  .cta-title { font-size: 14px; font-weight: 600; color: #fff; }
+  .cta-desc { font-size: 11px; color: #525252; margin-top: 8px; }
+  .cta-btn { display: inline-block; background: #fff; color: #000; font-weight: 500; font-size: 13px; padding: 10px 32px; border-radius: 6px; margin-top: 16px; text-decoration: none; }
+  .cta-sub { font-size: 9px; color: #404040; margin-top: 8px; }
+
+  .footer { border-top: 1px solid #262626; padding-top: 12px; margin-top: 24px; font-size: 9px; color: #404040; text-align: center; }
 </style>
 </head>
 <body>
 
-<!-- PAGE 1 -->
 <div class="page">
   <div class="header">
-    <div class="logo">Rank<span>Sight</span></div>
-    <div class="meta">SEO & GEO AUDIT PREVIEW<br>${data.date}</div>
+    <div class="brand">Impulse Studios</div>
+    <div class="meta mono">AI Search Readiness Report<br>${data.date}</div>
   </div>
 
-  <div class="grade-container">
-    <div class="website">Website: ${data.url}</div>
+  <div class="grade-wrap">
+    <div class="url">${data.url}</div>
     <div style="margin-top: 16px;">
       <div class="grade-circle">
         <div class="grade-letter">${data.overallGrade}</div>
@@ -119,75 +118,66 @@ export function renderTeaserHtml(data: TeaserData): string {
     </div>
   </div>
 
-  <div class="categories">
-    ${Object.entries(data.categories).map(([key, val]) => {
-      const labels: Record<string, string> = { technical: 'Technical', visibility: 'Visibility', geo: 'AI Readiness', content: 'Content' };
-      return `<div class="cat-row">
+  ${data.topIssues[0] ? `
+  <div class="critical-box">
+    <div class="critical-label">${severityIcon(data.topIssues[0].severity)} Critical Issue</div>
+    <div class="critical-title">${data.topIssues[0].title}</div>
+    <div class="critical-desc">${data.topIssues[0].description}</div>
+  </div>
+  ` : ''}
+
+  <div style="text-align: center; font-size: 11px; color: #525252; margin: 16px 0;">
+    Estimated potential improvement: <span style="color: #fff;">${data.stats.estTrafficLoss} organic traffic</span>
+  </div>
+
+  <div class="cat-grid">
+    ${Object.entries(data.categories).filter(([k]) => k !== 'onpage').map(([key, val]) => {
+      const labels: Record<string, string> = { geo: 'AI Ready', technical: 'Technical', content: 'Content', visibility: 'Visibility' };
+      return `<div class="cat-card">
         <div class="cat-label">${labels[key] || key}</div>
         <div class="cat-grade" style="color: ${gradeColor(val.grade)}">${val.grade}</div>
-        <div class="cat-bar"><div class="cat-bar-fill" style="width: ${barWidth(val.score)}; background: ${gradeColor(val.grade)}"></div></div>
-        <div class="cat-pct">${val.score}%</div>
+        <div class="cat-score">${val.score}/100</div>
       </div>`;
     }).join('')}
   </div>
 
-  <div class="section-title">🏆 YOUR 3 BIGGEST OPPORTUNITIES</div>
-
-  ${data.topIssues.map((issue, i) => `
-    <div class="issue ${issue.severity}">
-      <div class="issue-header">
-        <span>${severityIcon(issue.severity)}</span>
-        <span class="issue-num">#${i + 1}</span>
-        <span class="issue-title">${issue.title}</span>
+  ${data.topIssues.length > 1 ? `
+  <div class="section-label">Top Issues</div>
+  ${data.topIssues.slice(0, 3).map(issue => `
+    <div class="issue">
+      <span>${severityIcon(issue.severity)}</span>
+      <div class="issue-text">
+        <div class="issue-title">${issue.title}</div>
+        <div class="issue-impact">${issue.impact}</div>
       </div>
-      <div class="issue-desc">${issue.description}</div>
-      <div class="issue-impact">Impact: ${issue.impact}</div>
+    </div>
+  `).join('')}
+  ` : ''}
+
+  <div class="section-label">Full Report Contents</div>
+  ${[
+    { name: '✅ Quick Wins — fix this week', badge: `${data.stats.quickWins} items` },
+    { name: '🔒 AI Search: Why ChatGPT ignores you', badge: 'Locked' },
+    { name: '🔒 Technical: Speed & crawl issues', badge: 'Locked' },
+    { name: '🔒 Content: Thin & missing pages', badge: 'Locked' },
+    { name: '🔒 Competitor comparison', badge: 'Locked' },
+    { name: '🔒 Prioritized action plan', badge: 'Locked' },
+  ].map(r => `
+    <div class="locked-row">
+      <span class="locked-name">${r.name}</span>
+      <span class="locked-badge">${r.badge}</span>
     </div>
   `).join('')}
 
-  <div class="stats-row">
-    <div class="stat"><div class="stat-value">${data.stats.totalIssues}</div><div class="stat-label">Issues found</div></div>
-    <div class="stat"><div class="stat-value">${data.stats.pagesAnalyzed}</div><div class="stat-label">Pages analyzed</div></div>
-    <div class="stat"><div class="stat-value">${data.stats.quickWins}</div><div class="stat-label">Quick wins</div></div>
-    <div class="stat"><div class="stat-value">${data.stats.estTrafficImpact}</div><div class="stat-label">Est. traffic impact</div></div>
-  </div>
-</div>
-
-<!-- PAGE 2 -->
-<div class="page">
-  <div class="header">
-    <div class="logo">Rank<span>Sight</span></div>
-    <div class="meta">FULL REPORT CONTENTS</div>
-  </div>
-
-  <div class="section-title">YOUR FULL REPORT INCLUDES:</div>
-
-  <div class="toc">
-    ${[
-      { section: '1. Executive Summary', issues: '—', status: '✅ Preview above' },
-      { section: '2. Technical Health', issues: '14 issues', status: '🔒 Full Report' },
-      { section: '3. Search Visibility Analysis', issues: '9 issues', status: '🔒 Full Report' },
-      { section: '4. AI Search Readiness (GEO)', issues: '11 issues', status: '🔒 Full Report' },
-      { section: '5. Content Quality Analysis', issues: '8 issues', status: '🔒 Full Report' },
-      { section: '6. Competitor Comparison', issues: '5 issues', status: '🔒 Full Report' },
-      { section: '7. Prioritized Action Plan', issues: '47 total', status: '🔒 Full Report' },
-    ].map(r => `
-      <div class="toc-row">
-        <span class="toc-section">${r.section}</span>
-        <span class="toc-status">${r.issues} · ${r.status}</span>
-      </div>
-    `).join('')}
-  </div>
-
-  <div class="cta-box">
-    <div class="cta-title">UNLOCK YOUR FULL REPORT</div>
-    <div class="cta-desc">Get 15–20 pages of detailed analysis with specific fix instructions for every issue.</div>
+  <div class="cta">
+    <div class="cta-title">This is just the preview.</div>
+    <div class="cta-desc">${data.stats.totalIssues} issues found. Get specific fix instructions for each one.</div>
     <a class="cta-btn" href="https://seo.impulsestudios.cc/audit/${data.auditId}">Unlock Full Report — $29</a>
-    <div class="cta-sub">💰 100% money-back guarantee · Equivalent agency report: $500+</div>
+    <div class="cta-sub">100% money-back guarantee · Agency equivalent: $500+</div>
   </div>
 
   <div class="footer">
-    Generated by RankSight | seo.impulsestudios.cc | This report is for informational purposes only.
+    Impulse Studios · seo.impulsestudios.cc
   </div>
 </div>
 

@@ -8,7 +8,7 @@ export async function GET(
   const supabase = getServiceClient();
   const { data, error } = await supabase
     .from('audits')
-    .select('id, url, email, status, progress, current_step, overall_score, overall_grade, technical_score, visibility_score, geo_score, content_score, teaser_data, paid')
+    .select('id, url, email, status, progress, current_step, overall_score, overall_grade, technical_score, visibility_score, geo_score, content_score, teaser_data, paid, full_data, error_message')
     .eq('id', params.id)
     .single();
 
@@ -16,5 +16,8 @@ export async function GET(
     return NextResponse.json({ error: 'Audit not found' }, { status: 404 });
   }
 
-  return NextResponse.json(data);
+  return NextResponse.json({
+    ...data,
+    onpage_score: data.full_data?.onpage_score ?? null,
+  });
 }

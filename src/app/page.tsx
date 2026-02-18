@@ -1,87 +1,80 @@
 import Header from '@/components/Header';
 import AuditForm from '@/components/AuditForm';
+import VisibilityCheck from '@/components/VisibilityCheck';
 import FAQ from '@/components/FAQ';
 
-const categories = [
-  { icon: '🔧', color: 'text-blue-500', title: 'Technical Health', items: 'Page speed · Mobile-friendliness · Broken links · Core Web Vitals · SSL · Crawlability', note: 'Most sites score: C+' },
-  { icon: '🔍', color: 'text-purple-500', title: 'Search Visibility', items: 'Current rankings · Keyword opportunities · Search impressions · Click-through rates · SERP features', note: 'Most sites miss: 40+ keyword opportunities' },
-  { icon: '🤖', color: 'text-emerald-500', title: 'AI Search Readiness (GEO)', items: 'ChatGPT citation readiness · AI bot access · Schema.org markup · FAQ structure · Content citability · Perplexity compatibility', note: '92% of small businesses fail this section', featured: true },
-  { icon: '📝', color: 'text-orange-500', title: 'Content Analysis', items: 'Thin content pages · Missing meta descriptions · Duplicate content · Heading structure · Image optimization', note: 'Average site has: 12 content issues' },
-  { icon: '📊', color: 'text-red-500', title: 'Competitor Insights', items: 'Head-to-head scoring · Keyword gap analysis · Content comparison · Technical comparison · Ranking overlaps', note: 'Know exactly where you stand' },
-  { icon: '🎯', color: 'text-indigo-500', title: 'Prioritized Action Plan', items: 'Quick wins (this week) · Medium-term fixes (this month) · Strategic initiatives (this quarter) · Estimated impact per fix', note: 'Average ROI: 3x traffic increase' },
-];
-
-const testimonials = [
-  { name: 'Maria R.', role: 'Flower Shop Owner', text: "I had no idea my website was blocking AI bots. The report showed me exactly what to fix, and I did it myself in an afternoon. Already seeing more Google traffic!", stat: 'Score: D → B+ in 3 weeks' },
-  { name: 'Jake T.', role: 'Shopify Store Owner', text: "I was spending $800/month on ads. This $29 report showed me 15 free organic traffic opportunities I was completely missing. Best ROI ever.", stat: 'Organic traffic: +47% in 6 weeks' },
-  { name: 'Sophie L.', role: 'Photographer', text: "The GEO section blew my mind. I had no idea ChatGPT search was a thing. Now my portfolio shows up when people ask AI for photographers in my city.", stat: 'AI search citations: 0 → 12/month' },
-  { name: 'David K.', role: 'SaaS Founder', text: "Usually I'd spend 4 hours running different SEO tools. This gave me everything in one clean report for $29. The action plan alone was worth 10x that.", stat: '4 hours saved per audit' },
+const dimensions = [
+  { icon: '🤖', title: 'AI Search Readiness', desc: 'Can ChatGPT, Perplexity, and Claude find and cite your business? We check bot access, structured data, and content citability.', note: '92% of businesses fail this' },
+  { icon: '🔧', title: 'Technical Health', desc: 'Core Web Vitals, page speed, SSL, crawlability, redirect chains. The foundation everything else depends on.', note: 'Most sites: C+' },
+  { icon: '🔍', title: 'Search Visibility', desc: 'Indexation status, sitemap health, robots.txt rules, canonical tags, and internal linking structure.', note: 'Hidden issues found in 8/10 audits' },
+  { icon: '📝', title: 'Content Quality', desc: 'Thin content detection, meta descriptions, heading structure, image alt text, and duplicate content signals.', note: 'Average: 12 issues per site' },
+  { icon: '📊', title: 'Competitor Insights', desc: 'How you stack up against the top 3 sites in your space. Where they win, where you can catch up.', note: 'Know where you stand' },
+  { icon: '🎯', title: 'Action Plan', desc: 'Every issue prioritized by impact and difficulty. Quick wins this week, strategic moves this quarter.', note: 'Average ROI: 3× traffic' },
 ];
 
 export default function Home() {
   return (
-    <main>
+    <main className="bg-neutral-950 text-white">
       <Header />
 
       {/* Hero */}
-      <section id="hero" className="relative min-h-[90vh] flex items-center bg-gradient-to-b from-slate-950 to-slate-900 bg-grid overflow-hidden">
-        <div className="max-w-4xl mx-auto px-6 pt-24 pb-16 text-center">
-          <div className="inline-block bg-emerald-500/10 text-emerald-400 text-sm font-medium px-4 py-1 rounded-full mb-6">
-            🔥 Now with AI Search Readiness Scoring
-          </div>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
-            Is Your Website Invisible to Google & AI Search?
+      <section id="hero" className="min-h-screen flex items-center relative">
+        <div className="max-w-3xl mx-auto px-6 pt-28 pb-20 text-center">
+          <p className="text-xs font-mono tracking-widest text-neutral-500 uppercase mb-8">
+            AI Search Readiness Report
+          </p>
+          <h1 className="text-4xl md:text-6xl font-bold tracking-tight leading-[1.1]">
+            Is Your Business<br />
+            <span className="text-neutral-500">Invisible to ChatGPT?</span>
           </h1>
-          <p className="text-lg md:text-xl text-gray-400 mt-6 max-w-2xl mx-auto">
-            Get a free SEO & AI readiness audit in minutes. See exactly what&apos;s broken — and how to fix it.
+          <p className="text-base text-neutral-500 mt-6 max-w-xl mx-auto leading-relaxed">
+            68% of people will use AI search by 2027. If ChatGPT doesn&apos;t know about your business, you&apos;re already losing customers.
           </p>
 
-          <div className="mt-10">
+          {/* AI Visibility Check */}
+          <div className="mt-12">
+            <p className="text-xs font-mono text-neutral-600 uppercase tracking-wider mb-4">
+              Free instant check — no email required
+            </p>
+            <VisibilityCheck />
+          </div>
+
+          {/* Divider */}
+          <div className="flex items-center gap-4 my-12">
+            <div className="flex-1 h-px bg-neutral-800" />
+            <span className="text-xs text-neutral-600 font-mono">or get the full audit</span>
+            <div className="flex-1 h-px bg-neutral-800" />
+          </div>
+
+          {/* Audit Form */}
+          <div>
             <AuditForm />
           </div>
 
-          <div className="mt-10 flex flex-wrap justify-center gap-6 text-sm text-gray-500">
-            <span>2,400+ audits completed</span>
-            <span className="hidden sm:inline text-gray-700">•</span>
-            <span>Average improvement: +34%</span>
-            <span className="hidden sm:inline text-gray-700">•</span>
-            <span>4.9/5 user rating</span>
-          </div>
+          <p className="text-xs text-neutral-600 mt-8">
+            Built by SEO engineers. No spam. Results in minutes.
+          </p>
         </div>
       </section>
 
       {/* What We Analyze */}
-      <section className="py-24 bg-white">
-        <div className="max-w-6xl mx-auto px-6">
-          <p className="text-sm font-semibold tracking-wider text-emerald-600 text-center">COMPREHENSIVE ANALYSIS</p>
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 text-center mt-2">
-            Six Dimensions of Search Performance
+      <section className="py-24 border-t border-neutral-900">
+        <div className="max-w-5xl mx-auto px-6">
+          <p className="text-xs font-mono tracking-widest text-neutral-500 uppercase">Analysis</p>
+          <h2 className="text-2xl md:text-3xl font-bold mt-3 tracking-tight">
+            Six dimensions of search performance
           </h2>
-          <p className="text-lg text-gray-600 text-center mt-4 max-w-2xl mx-auto">
-            We don&apos;t just check the basics. We analyze everything that affects whether people can find your business online — including AI search engines.
+          <p className="text-neutral-500 mt-3 max-w-lg text-sm leading-relaxed">
+            We don&apos;t just check the basics. We analyze everything that determines whether people — and AI — can find your business.
           </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-14">
-            {categories.map((cat) => (
-              <div
-                key={cat.title}
-                className={`rounded-xl border p-8 transition-all hover:shadow-md ${
-                  cat.featured
-                    ? 'border-emerald-200 bg-emerald-50/50'
-                    : 'border-gray-100 bg-white hover:border-emerald-100'
-                }`}
-              >
-                <div className="flex items-center gap-3 mb-4">
-                  <span className="text-3xl">{cat.icon}</span>
-                  {cat.featured && (
-                    <span className="bg-emerald-100 text-emerald-700 text-xs font-semibold px-2 py-0.5 rounded-full">
-                      DIFFERENTIATOR
-                    </span>
-                  )}
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900">{cat.title}</h3>
-                <p className="text-gray-600 text-sm mt-2 leading-relaxed">{cat.items}</p>
-                <p className="text-gray-400 text-xs mt-4">{cat.note}</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-neutral-900 mt-12 border border-neutral-900">
+            {dimensions.map((d) => (
+              <div key={d.title} className="bg-neutral-950 p-8">
+                <span className="text-2xl">{d.icon}</span>
+                <h3 className="text-sm font-semibold mt-4">{d.title}</h3>
+                <p className="text-xs text-neutral-500 mt-2 leading-relaxed">{d.desc}</p>
+                <p className="text-[10px] font-mono text-neutral-700 mt-4">{d.note}</p>
               </div>
             ))}
           </div>
@@ -89,237 +82,156 @@ export default function Home() {
       </section>
 
       {/* How It Works */}
-      <section id="how-it-works" className="py-24 bg-gray-50">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
-            Your Audit in 3 Simple Steps
+      <section id="how-it-works" className="py-24 border-t border-neutral-900">
+        <div className="max-w-3xl mx-auto px-6">
+          <p className="text-xs font-mono tracking-widest text-neutral-500 uppercase">Process</p>
+          <h2 className="text-2xl md:text-3xl font-bold mt-3 tracking-tight">
+            Three steps. No signup.
           </h2>
-          <p className="text-lg text-gray-600 mt-4">No technical knowledge required. No signup needed.</p>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mt-16">
+          <div className="mt-12 space-y-8">
             {[
-              { num: '01', title: 'Enter Your Website URL', desc: 'Just paste your website address. We handle everything else. No technical setup required.' },
-              { num: '02', title: 'Get Your Free Score & Preview', desc: 'In minutes, see your overall SEO grade, top 3 critical issues, and a preview of the full report.' },
-              { num: '03', title: 'Unlock the Full Report for $29', desc: 'Get 15–20 pages of detailed analysis, specific fix instructions, and a prioritized action plan.' },
+              { num: '01', title: 'Enter your URL', desc: 'Paste your website address. We handle everything else.' },
+              { num: '02', title: 'Get your score', desc: 'In minutes, see your AI readiness grade, top issues, and a preview of the full report.' },
+              { num: '03', title: 'Unlock the full report', desc: '15–20 pages of analysis with specific fix instructions. $29 one-time.' },
             ].map((step) => (
-              <div key={step.num} className="text-center">
-                <div className="text-6xl font-bold text-emerald-100">{step.num}</div>
-                <h3 className="text-xl font-semibold text-gray-900 mt-4">{step.title}</h3>
-                <p className="text-gray-600 text-sm mt-3">{step.desc}</p>
-              </div>
-            ))}
-          </div>
-
-          <a
-            href="#hero"
-            className="inline-block mt-12 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-lg px-8 py-4 rounded-lg transition-colors"
-          >
-            Start Your Free Audit Now →
-          </a>
-        </div>
-      </section>
-
-      {/* Pricing */}
-      <section id="pricing" className="py-24 bg-white">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Simple, Transparent Pricing</h2>
-          <p className="text-lg text-gray-600 mt-4">No subscriptions. No hidden fees. One report, one price.</p>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-14 max-w-3xl mx-auto">
-            {/* Free */}
-            <div className="border border-gray-200 rounded-xl p-8 text-left">
-              <h3 className="text-2xl font-bold text-gray-900">Free Preview</h3>
-              <div className="text-5xl font-bold text-gray-900 mt-4">$0</div>
-              <hr className="my-6 border-gray-100" />
-              <ul className="space-y-3 text-sm">
-                {['Overall SEO grade (A–F)', 'Top 3 critical issues identified', 'AI Search readiness score', 'Quick summary statistics', 'Delivered to your email'].map((f) => (
-                  <li key={f} className="flex gap-2 text-gray-600"><span className="text-emerald-500">✓</span>{f}</li>
-                ))}
-                {['Detailed analysis per section', 'Specific fix instructions', 'Competitor comparison', 'Prioritized action plan', 'AI search optimization guide'].map((f) => (
-                  <li key={f} className="flex gap-2 text-gray-400"><span>✗</span>{f}</li>
-                ))}
-              </ul>
-              <a href="#hero" className="block mt-8 text-center border border-gray-300 text-gray-700 hover:border-gray-400 font-medium py-3 rounded-lg transition-colors">
-                Get Free Preview
-              </a>
-            </div>
-
-            {/* Paid */}
-            <div className="relative border-2 border-emerald-500 rounded-xl p-8 text-left">
-              <div className="absolute -top-3 right-6 bg-emerald-500 text-white text-xs font-semibold px-3 py-1 rounded-full">
-                MOST POPULAR
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900">Full Report</h3>
-              <div className="mt-4">
-                <span className="text-5xl font-bold text-emerald-600">$29</span>
-                <span className="text-sm text-gray-500 ml-2">one-time payment</span>
-              </div>
-              <hr className="my-6 border-gray-100" />
-              <ul className="space-y-3 text-sm">
-                <li className="text-gray-700 font-medium">✓ Everything in Free, plus:</li>
-                {['15–20 page comprehensive analysis', 'Section-by-section deep dive', 'Specific fix instructions per issue', 'AI search readiness optimization guide', 'Competitor head-to-head comparison', 'Prioritized action plan', 'Estimated traffic impact per fix', 'PDF download + email delivery'].map((f) => (
-                  <li key={f} className="flex gap-2 text-gray-700"><span className="text-emerald-500">✓</span>{f}</li>
-                ))}
-              </ul>
-              <p className="text-sm text-gray-500 mt-4">
-                Equivalent agency report: <span className="line-through">$500+</span>
-              </p>
-              <a href="#hero" className="block mt-6 text-center bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-3 rounded-lg transition-colors">
-                Get Full Report — $29
-              </a>
-              <p className="text-xs text-gray-500 text-center mt-3">💰 100% money-back guarantee</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section className="py-24 bg-gray-50">
-        <div className="max-w-6xl mx-auto px-6">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 text-center">
-            What Business Owners Say
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-14">
-            {testimonials.map((t) => (
-              <div key={t.name} className="bg-white rounded-xl border border-gray-100 p-8">
-                <div className="text-yellow-400 text-sm mb-3">★★★★★</div>
-                <p className="text-gray-700 text-sm leading-relaxed">&ldquo;{t.text}&rdquo;</p>
-                <div className="mt-4 flex items-center justify-between">
-                  <div>
-                    <p className="font-semibold text-gray-900 text-sm">{t.name}</p>
-                    <p className="text-gray-500 text-xs">{t.role}</p>
-                  </div>
-                  <span className="text-xs bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full font-medium">
-                    {t.stat}
-                  </span>
+              <div key={step.num} className="flex gap-6 items-start">
+                <span className="text-3xl font-bold text-neutral-800 font-mono">{step.num}</span>
+                <div>
+                  <h3 className="text-sm font-semibold">{step.title}</h3>
+                  <p className="text-xs text-neutral-500 mt-1">{step.desc}</p>
                 </div>
               </div>
             ))}
           </div>
-          <div className="mt-10 flex flex-wrap justify-center gap-4 text-xs text-gray-400">
-            <span>🔒 Secure payment via Stripe</span>
-            <span>•</span>
-            <span>GDPR Compliant</span>
-            <span>•</span>
-            <span>No Data Stored</span>
-          </div>
         </div>
       </section>
 
-      {/* GEO Education Section */}
-      <section className="py-24 bg-slate-900 text-white">
-        <div className="max-w-6xl mx-auto px-6">
-          <p className="text-sm tracking-wider text-emerald-400 font-semibold">THE FUTURE OF SEARCH</p>
-          <h2 className="text-3xl md:text-4xl font-bold text-white mt-2">
-            Is Your Business Ready for AI Search?
+      {/* GEO Section */}
+      <section className="py-24 border-t border-neutral-900">
+        <div className="max-w-4xl mx-auto px-6">
+          <p className="text-xs font-mono tracking-widest text-neutral-500 uppercase">The shift</p>
+          <h2 className="text-2xl md:text-3xl font-bold mt-3 tracking-tight">
+            Google isn&apos;t the only search engine anymore.
           </h2>
-          <p className="text-lg text-gray-400 mt-4 max-w-2xl">
-            Google isn&apos;t the only search engine anymore. ChatGPT, Perplexity, and AI assistants are how millions now find businesses. Is yours showing up?
+          <p className="text-neutral-500 mt-3 max-w-lg text-sm leading-relaxed">
+            ChatGPT, Perplexity, and AI assistants are how millions find businesses. GEO — Generative Engine Optimization — is how you show up.
           </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mt-14">
-            <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mt-12">
+            <div className="space-y-4">
               {[
                 '40% of Gen Z uses AI over Google for search',
                 'AI search projected to capture 25% of traffic by 2026',
                 'Most small businesses have zero AI search optimization',
               ].map((stat) => (
                 <div key={stat} className="flex gap-3 items-start">
-                  <span className="text-emerald-400 text-lg mt-0.5">▸</span>
-                  <p className="text-gray-300 text-lg">{stat}</p>
+                  <span className="text-neutral-700 text-xs mt-0.5">▸</span>
+                  <p className="text-sm text-neutral-400">{stat}</p>
                 </div>
               ))}
             </div>
-            <div>
-              <p className="text-gray-300 mb-6">
-                <strong className="text-white">GEO (Generative Engine Optimization)</strong> is the practice of making your website citable by AI. Here&apos;s what we check:
-              </p>
-              <ul className="space-y-3 text-sm text-gray-400">
-                {[
-                  'Can AI crawlers access your site? (robots.txt rules)',
-                  'Does your content have structured data (Schema.org)?',
-                  'Are your FAQ sections formatted for AI extraction?',
-                  'Is your content structured for citation?',
-                  'Do you have topical authority signals?',
-                ].map((item) => (
-                  <li key={item} className="flex gap-2">
-                    <span className="text-emerald-400">✓</span>
-                    {item}
-                  </li>
-                ))}
-              </ul>
+            <div className="space-y-3">
+              {[
+                'Can AI crawlers access your site?',
+                'Does your content have structured data?',
+                'Are your FAQs formatted for AI extraction?',
+                'Is your content structured for citation?',
+              ].map((item) => (
+                <div key={item} className="flex gap-2 text-xs text-neutral-500">
+                  <span className="text-neutral-700">✓</span>
+                  {item}
+                </div>
+              ))}
             </div>
           </div>
+        </div>
+      </section>
 
-          <a
-            href="#hero"
-            className="inline-block mt-12 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold px-8 py-4 rounded-lg transition-colors"
-          >
-            Check Your AI Readiness — Free →
-          </a>
+      {/* Pricing */}
+      <section id="pricing" className="py-24 border-t border-neutral-900">
+        <div className="max-w-3xl mx-auto px-6">
+          <p className="text-xs font-mono tracking-widest text-neutral-500 uppercase">Pricing</p>
+          <h2 className="text-2xl md:text-3xl font-bold mt-3 tracking-tight">
+            One report. One price. No subscriptions.
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-neutral-900 mt-12 border border-neutral-900">
+            <div className="bg-neutral-950 p-8">
+              <h3 className="text-sm font-semibold">Free Preview</h3>
+              <p className="text-3xl font-bold mt-2">$0</p>
+              <div className="mt-6 space-y-2 text-xs text-neutral-500">
+                <p>✓ Overall AI readiness grade</p>
+                <p>✓ Top 3 critical issues</p>
+                <p>✓ Category scores</p>
+                <p>✓ Quick stats</p>
+                <p className="text-neutral-700">✗ Detailed analysis</p>
+                <p className="text-neutral-700">✗ Fix instructions</p>
+                <p className="text-neutral-700">✗ Action plan</p>
+              </div>
+              <a href="#hero" className="block mt-8 text-center border border-neutral-800 text-neutral-400 text-xs py-2.5 rounded-md hover:border-neutral-700 transition-colors">
+                Get Free Preview
+              </a>
+            </div>
+            <div className="bg-neutral-950 p-8 border-l border-neutral-900">
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm font-semibold">Full Report</h3>
+                <span className="text-[10px] font-mono text-neutral-600 border border-neutral-800 px-1.5 py-0.5 rounded">RECOMMENDED</span>
+              </div>
+              <p className="text-3xl font-bold mt-2">$29</p>
+              <div className="mt-6 space-y-2 text-xs text-neutral-400">
+                <p>✓ Everything in Free, plus:</p>
+                <p>✓ 15–20 page deep analysis</p>
+                <p>✓ Specific fix instructions</p>
+                <p>✓ AI search optimization guide</p>
+                <p>✓ Competitor comparison</p>
+                <p>✓ Prioritized action plan</p>
+                <p>✓ PDF download</p>
+              </div>
+              <p className="text-[10px] text-neutral-600 mt-4">
+                Equivalent agency report: <span className="line-through">$500+</span>
+              </p>
+              <a href="#hero" className="block mt-4 text-center bg-white text-black text-xs font-medium py-2.5 rounded-md hover:bg-neutral-200 transition-colors">
+                Get Full Report — $29
+              </a>
+              <p className="text-[10px] text-neutral-700 text-center mt-2">100% money-back guarantee</p>
+            </div>
+          </div>
         </div>
       </section>
 
       <FAQ />
 
       {/* Final CTA */}
-      <section className="py-24 bg-slate-950 text-center">
-        <div className="max-w-3xl mx-auto px-6">
-          <h2 className="text-3xl md:text-4xl font-bold text-white">
-            Ready to See What&apos;s Holding Your Website Back?
+      <section className="py-24 border-t border-neutral-900">
+        <div className="max-w-2xl mx-auto px-6 text-center">
+          <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
+            See what&apos;s holding your website back.
           </h2>
-          <p className="text-lg text-gray-400 mt-4">
-            Free audit in minutes. No signup required.
-          </p>
-          <a
-            href="#hero"
-            className="inline-block mt-8 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-lg px-8 py-4 rounded-lg transition-colors"
-          >
-            Get Your Free SEO Audit →
+          <p className="text-neutral-500 text-sm mt-3">Free audit. No signup. Results in minutes.</p>
+          <a href="#hero" className="inline-block mt-8 bg-white text-black text-sm font-medium px-8 py-3 rounded-md hover:bg-neutral-200 transition-colors">
+            Start Your Audit →
           </a>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-16 bg-gray-900 text-gray-400">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-sm">
+      <footer className="py-12 border-t border-neutral-900">
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="flex flex-col md:flex-row justify-between items-start gap-8">
             <div>
-              <p className="text-white font-semibold text-lg mb-3">
-                Rank<span className="text-emerald-400">Sight</span>
-              </p>
-              <p className="text-xs leading-relaxed">
-                Agency-grade SEO & AI search audits for small businesses.
-              </p>
+              <p className="text-sm font-semibold">Impulse Studios</p>
+              <p className="text-[10px] text-neutral-600 mt-1">AI search readiness audits for businesses.</p>
             </div>
-            <div>
-              <p className="font-semibold text-gray-300 mb-3">Product</p>
-              <ul className="space-y-2 text-xs">
-                <li><a href="#hero" className="hover:text-white">Free SEO Audit</a></li>
-                <li><a href="#pricing" className="hover:text-white">Full Report</a></li>
-                <li><a href="#pricing" className="hover:text-white">Pricing</a></li>
-              </ul>
-            </div>
-            <div>
-              <p className="font-semibold text-gray-300 mb-3">Resources</p>
-              <ul className="space-y-2 text-xs">
-                <li><a href="#faq" className="hover:text-white">FAQ</a></li>
-                <li><span className="text-gray-600">Blog (coming soon)</span></li>
-              </ul>
-            </div>
-            <div>
-              <p className="font-semibold text-gray-300 mb-3">Legal</p>
-              <ul className="space-y-2 text-xs">
-                <li><span className="text-gray-600">Privacy Policy</span></li>
-                <li><span className="text-gray-600">Terms of Service</span></li>
-                <li><span className="text-gray-600">Refund Policy</span></li>
-              </ul>
+            <div className="flex gap-8 text-xs text-neutral-600">
+              <a href="#hero" className="hover:text-neutral-400 transition-colors">Audit</a>
+              <a href="#pricing" className="hover:text-neutral-400 transition-colors">Pricing</a>
+              <a href="#faq" className="hover:text-neutral-400 transition-colors">FAQ</a>
             </div>
           </div>
-          <hr className="border-gray-800 my-8" />
-          <p className="text-xs text-center text-gray-600">
-            © 2026 RankSight by Impulse Studios. All rights reserved.
-          </p>
+          <div className="mt-8 pt-8 border-t border-neutral-900 text-[10px] text-neutral-700 text-center">
+            © 2026 Impulse Studios. All rights reserved.
+          </div>
         </div>
       </footer>
     </main>

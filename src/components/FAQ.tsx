@@ -3,93 +3,39 @@
 import { useState } from 'react';
 
 const faqs = [
-  {
-    q: 'What exactly do I get for free?',
-    a: 'A 2-page preview showing your overall SEO score (A–F), your 3 biggest issues, and key statistics. It shows WHAT\'s broken — the full report shows HOW to fix it.',
-  },
-  {
-    q: 'What\'s in the full $29 report?',
-    a: 'A 15–20 page PDF covering technical health, search visibility, AI search readiness, content quality, competitor comparison, and a prioritized action plan with specific fix instructions for every issue found.',
-  },
-  {
-    q: 'How long does the audit take?',
-    a: 'Your free preview is ready in about 5–10 minutes. The full report is delivered within 15 minutes of purchase — usually much faster.',
-  },
-  {
-    q: 'Do I need any technical knowledge?',
-    a: 'Not at all. The report is written in plain English for business owners, not developers. Every issue includes a simple explanation of why it matters and step-by-step fix instructions.',
-  },
-  {
-    q: 'What is AI Search / GEO?',
-    a: 'GEO stands for Generative Engine Optimization. It\'s about making sure your website can be found and cited by AI search tools like ChatGPT, Perplexity, and Google AI Overviews. It\'s a new and rapidly growing way people find businesses.',
-  },
-  {
-    q: 'Is my data safe?',
-    a: 'Absolutely. We only store your email and website URL. We analyze only publicly accessible pages. All payments are processed securely by Stripe. We\'re GDPR compliant.',
-  },
-  {
-    q: 'What if I\'m not satisfied with the report?',
-    a: 'We offer a 100% money-back guarantee within 7 days. If the report doesn\'t provide value, email us and we\'ll refund you — no questions asked.',
-  },
-  {
-    q: 'Can you implement the fixes for me?',
-    a: 'Yes! Reply to your report email and we\'ll provide a free quote for implementation. We offer packages starting at $299 for quick wins up to full SEO overhauls.',
-  },
+  { q: 'What is AI search readiness?', a: 'AI search engines like ChatGPT, Perplexity, and Google AI Overviews are becoming how people find businesses. AI readiness measures whether these tools can find, understand, and cite your business.' },
+  { q: 'What do I get for free?', a: 'Your overall AI readiness grade (A-F), scores across 6 categories, and your top 3 critical issues. Enough to know if you have a problem.' },
+  { q: 'What\'s in the full $29 report?', a: '15-20 pages: detailed analysis of every issue found, specific fix instructions, a competitor comparison, and a prioritized action plan sorted by impact and difficulty.' },
+  { q: 'How long does the audit take?', a: 'About 60-90 seconds. We crawl your site, run PageSpeed tests, check AI bot access, analyze your content, and score everything.' },
+  { q: 'Do I need technical knowledge?', a: 'No. The report explains issues in plain language with step-by-step fix instructions. Many quick wins take 15 minutes or less.' },
+  { q: 'Is there a money-back guarantee?', a: 'Yes. If the report doesn\'t provide actionable insights, we refund you. No questions asked.' },
 ];
 
 export default function FAQ() {
   const [open, setOpen] = useState<number | null>(null);
 
   return (
-    <section id="faq" className="py-24 bg-white">
-      <div className="max-w-3xl mx-auto px-6">
-        <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">
-          Frequently Asked Questions
-        </h2>
+    <section id="faq" className="py-24 border-t border-neutral-900">
+      <div className="max-w-2xl mx-auto px-6">
+        <p className="text-xs font-mono tracking-widest text-neutral-500 uppercase">FAQ</p>
+        <h2 className="text-2xl font-bold mt-3 tracking-tight">Common questions</h2>
 
-        <div className="space-y-3">
+        <div className="mt-10 divide-y divide-neutral-900">
           {faqs.map((faq, i) => (
-            <div key={i} className="border border-gray-200 rounded-md">
+            <div key={i}>
               <button
                 onClick={() => setOpen(open === i ? null : i)}
-                className="w-full flex items-center justify-between px-6 py-4 text-left"
+                className="w-full text-left py-4 flex justify-between items-start gap-4"
               >
-                <span className="font-medium text-gray-900 pr-4">{faq.q}</span>
-                <svg
-                  className={`w-5 h-5 text-gray-400 flex-shrink-0 transition-transform ${
-                    open === i ? 'rotate-180' : ''
-                  }`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
+                <span className="text-sm text-neutral-300">{faq.q}</span>
+                <span className="text-neutral-600 text-xs mt-0.5 flex-shrink-0">{open === i ? '−' : '+'}</span>
               </button>
               {open === i && (
-                <div className="px-6 pb-4 text-gray-600 text-sm leading-relaxed">
-                  {faq.a}
-                </div>
+                <p className="text-xs text-neutral-500 pb-4 leading-relaxed">{faq.a}</p>
               )}
             </div>
           ))}
         </div>
-
-        {/* FAQ Schema */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              '@context': 'https://schema.org',
-              '@type': 'FAQPage',
-              mainEntity: faqs.map((faq) => ({
-                '@type': 'Question',
-                name: faq.q,
-                acceptedAnswer: { '@type': 'Answer', text: faq.a },
-              })),
-            }),
-          }}
-        />
       </div>
     </section>
   );

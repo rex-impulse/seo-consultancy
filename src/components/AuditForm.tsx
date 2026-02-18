@@ -22,25 +22,19 @@ export default function AuditForm() {
     }
   }
 
-  function handleUrlBlur() {
+  function handleUrlSubmit() {
     if (url && isValidUrl(url)) {
       setShowEmail(true);
       setError('');
     } else if (url) {
-      setError('Please enter a valid website URL (e.g., www.yoursite.com)');
+      setError('Enter a valid URL (e.g. yoursite.com)');
     }
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!isValidUrl(url)) {
-      setError('Please enter a valid website URL');
-      return;
-    }
-    if (!email || !email.includes('@')) {
-      setError('Please enter a valid email address');
-      return;
-    }
+    if (!isValidUrl(url)) { setError('Enter a valid URL'); return; }
+    if (!email || !email.includes('@')) { setError('Enter a valid email'); return; }
 
     setLoading(true);
     setError('');
@@ -61,67 +55,55 @@ export default function AuditForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-xl mx-auto">
-      <div className="bg-white rounded-xl p-2 shadow-2xl">
-        <div className="flex flex-col sm:flex-row gap-2">
-          <input
-            type="text"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            onBlur={handleUrlBlur}
-            placeholder="Enter your website URL..."
-            className="flex-1 text-gray-900 text-lg px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 placeholder:text-gray-400"
-          />
-          {!showEmail && (
-            <button
-              type="button"
-              onClick={handleUrlBlur}
-              className="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold px-6 py-3 rounded-lg transition-colors whitespace-nowrap"
-            >
-              Get Free Audit →
-            </button>
-          )}
-        </div>
-
-        {showEmail && (
-          <div className="mt-2 flex flex-col sm:flex-row gap-2 animate-[fadeIn_0.3s_ease-out]">
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Your email address"
-              className="flex-1 text-gray-900 text-lg px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 placeholder:text-gray-400"
-              autoFocus
-            />
-            <button
-              type="submit"
-              disabled={loading}
-              className="bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-400 text-white font-semibold px-6 py-3 rounded-lg transition-colors whitespace-nowrap flex items-center justify-center gap-2"
-            >
-              {loading ? (
-                <>
-                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
-                  Submitting...
-                </>
-              ) : (
-                'Get Free Audit →'
-              )}
-            </button>
-          </div>
+    <form onSubmit={handleSubmit} className="w-full max-w-lg mx-auto space-y-3">
+      <div className="flex flex-col sm:flex-row gap-3">
+        <input
+          type="text"
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          onBlur={handleUrlSubmit}
+          placeholder="yourwebsite.com"
+          className="flex-1 bg-neutral-900 border border-neutral-800 text-white text-sm px-4 py-3 rounded-md focus:outline-none focus:border-neutral-600 placeholder:text-neutral-600"
+        />
+        {!showEmail && (
+          <button
+            type="button"
+            onClick={handleUrlSubmit}
+            className="bg-white text-black text-sm font-medium px-6 py-3 rounded-md hover:bg-neutral-200 transition-colors whitespace-nowrap"
+          >
+            Audit My Site →
+          </button>
         )}
       </div>
 
       {showEmail && (
-        <p className="text-xs text-gray-500 mt-3 text-center">
-          🔒 No spam. We&apos;ll only send your report.
+        <div className="flex flex-col sm:flex-row gap-3">
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@email.com"
+            className="flex-1 bg-neutral-900 border border-neutral-800 text-white text-sm px-4 py-3 rounded-md focus:outline-none focus:border-neutral-600 placeholder:text-neutral-600"
+            autoFocus
+          />
+          <button
+            type="submit"
+            disabled={loading}
+            className="bg-white text-black text-sm font-medium px-6 py-3 rounded-md hover:bg-neutral-200 disabled:opacity-40 transition-colors whitespace-nowrap"
+          >
+            {loading ? 'Starting...' : 'Get Free Audit →'}
+          </button>
+        </div>
+      )}
+
+      {showEmail && (
+        <p className="text-[10px] text-neutral-700 text-center">
+          We&apos;ll send your report here. No spam.
         </p>
       )}
 
       {error && (
-        <p className="text-sm text-red-400 mt-3 text-center">{error}</p>
+        <p className="text-xs text-red-400 text-center">{error}</p>
       )}
     </form>
   );
