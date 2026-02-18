@@ -5,6 +5,9 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://seo.impulsestudios.cc'),
   title: 'Is Your Business Invisible to ChatGPT? | AI Search Readiness Audit',
   description: 'Find out if AI search engines like ChatGPT can find your business. Free AI readiness audit — see your score, top issues, and how to get cited by AI. Results in minutes.',
+  icons: {
+    icon: '/favicon.svg',
+  },
   openGraph: {
     title: 'Is Your Business Invisible to ChatGPT?',
     description: 'Free AI search readiness audit. See if ChatGPT, Perplexity, and AI assistants can find your business.',
