@@ -1,7 +1,7 @@
 import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-const FROM = 'Impulse SEO <reports@impulsestudios.cc>';
+const FROM = 'DevHyde SEO Reports <reports@devhyde.cc>';
 
 export async function sendTeaserEmail(to: string, auditId: string, url: string, grade: string, score: number) {
   const reportUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/audit/${auditId}`;
