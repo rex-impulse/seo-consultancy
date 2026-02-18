@@ -1,6 +1,6 @@
 import Header from '@/components/Header';
 import AuditForm from '@/components/AuditForm';
-import VisibilityCheck from '@/components/VisibilityCheck';
+// VisibilityCheck removed — single URL input is the hero now
 import FAQ from '@/components/FAQ';
 
 const dimensions = [
@@ -31,24 +31,10 @@ export default function Home() {
             68% of people will use AI search by 2027. If ChatGPT doesn&apos;t know about your business, you&apos;re already losing customers.
           </p>
 
-          {/* AI Visibility Check */}
+          {/* Audit Form — URL only */}
           <div className="mt-12">
-            <p className="text-xs font-mono text-neutral-600 uppercase tracking-wider mb-4">
-              Free instant check — no email required
-            </p>
-            <VisibilityCheck />
-          </div>
-
-          {/* Divider */}
-          <div className="flex items-center gap-4 my-12">
-            <div className="flex-1 h-px bg-neutral-800" />
-            <span className="text-xs text-neutral-600 font-mono">or get the full audit</span>
-            <div className="flex-1 h-px bg-neutral-800" />
-          </div>
-
-          {/* Audit Form */}
-          <div>
             <AuditForm />
+            <p className="text-xs text-neutral-600 mt-3">Free instant audit. No email required.</p>
           </div>
 
           <p className="text-xs text-neutral-600 mt-8">
