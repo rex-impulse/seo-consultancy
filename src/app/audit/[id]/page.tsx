@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams } from 'next/navigation';
 
 const STEPS = [
@@ -31,26 +31,16 @@ type AuditData = {
   error_message: string | null;
 };
 
-function gradeColor(grade: string): string {
-  if (grade.startsWith('A')) return 'text-emerald-600';
-  if (grade.startsWith('B')) return 'text-blue-600';
-  if (grade.startsWith('C')) return 'text-amber-600';
-  if (grade.startsWith('D')) return 'text-orange-600';
-  return 'text-red-600';
-}
-
-function gradeColorBg(grade: string): string {
-  if (grade.startsWith('A')) return 'bg-emerald-50 border-emerald-200';
-  if (grade.startsWith('B')) return 'bg-blue-50 border-blue-200';
-  if (grade.startsWith('C')) return 'bg-amber-50 border-amber-200';
-  if (grade.startsWith('D')) return 'bg-orange-50 border-orange-200';
-  return 'bg-red-50 border-red-200';
+function scoreBarColor(score: number): string {
+  if (score >= 80) return 'bg-emerald-500';
+  if (score >= 60) return 'bg-amber-500';
+  return 'bg-red-500';
 }
 
 function severityColor(sev: string): string {
-  if (sev === 'critical') return 'bg-red-100 text-red-700 border-red-200';
-  if (sev === 'high') return 'bg-orange-100 text-orange-700 border-orange-200';
-  return 'bg-amber-100 text-amber-700 border-amber-200';
+  if (sev === 'critical') return 'bg-red-50 text-red-700 border border-red-200';
+  if (sev === 'high') return 'bg-orange-50 text-orange-700 border border-orange-200';
+  return 'bg-amber-50 text-amber-700 border border-amber-200';
 }
 
 export default function AuditPage() {
@@ -62,6 +52,7 @@ export default function AuditPage() {
   const [error, setError] = useState('');
   const [email, setEmail] = useState('');
   const [emailSaved, setEmailSaved] = useState(false);
+  const firstLoad = useRef(true);
 
   useEffect(() => {
     if (!id) return;
@@ -75,6 +66,13 @@ export default function AuditPage() {
         if (data.status === 'error') {
           setError(data.error_message || 'An error occurred during analysis');
         }
+        // If already complete on first load, skip animation
+        if (firstLoad.current && (data.status === 'complete' || data.status === 'teaser_ready' || data.status === 'paid')) {
+          setShowTeaser(true);
+          setSimProgress(100);
+          setSimStep(STEPS.length - 1);
+        }
+        firstLoad.current = false;
         if (data.status === 'queued' && !triggered) {
           triggered = true;
           fetch(`/api/audit/${id}/run`, { method: 'POST' }).catch(() => {});
@@ -100,6 +98,7 @@ export default function AuditPage() {
   }, [showTeaser]);
 
   useEffect(() => {
+    if (firstLoad.current) return; // Don't animate if already handled
     if (audit && (audit.status === 'complete' || audit.status === 'teaser_ready' || audit.status === 'paid')) {
       setTimeout(() => {
         setSimProgress(100);
@@ -148,47 +147,49 @@ export default function AuditPage() {
   const grade = teaser?.overallGrade || audit?.overall_grade || '?';
   const score = teaser?.overallScore ?? audit?.overall_score ?? 0;
   const topIssues = teaser?.topIssues || [];
+  
+  const categories = [
+    { label: 'AI Readiness', score: teaser?.categories?.geo?.score ?? audit?.geo_score ?? 0 },
+    { label: 'Technical', score: teaser?.categories?.technical?.score ?? audit?.technical_score ?? 0 },
+    { label: 'Content', score: teaser?.categories?.content?.score ?? audit?.content_score ?? 0 },
+    { label: 'Visibility', score: teaser?.categories?.visibility?.score ?? audit?.visibility_score ?? 0 },
+  ];
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900">
+    <div className="min-h-screen bg-white text-gray-900">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200">
-        <div className="max-w-3xl mx-auto h-14 flex items-center justify-between px-6">
-          <a href="/" className="text-sm font-semibold tracking-tight text-gray-900">Impulse Studios</a>
-          <span className="text-xs text-gray-400">SEO Audit Report</span>
+      <header className="border-b border-gray-100">
+        <div className="max-w-2xl mx-auto h-12 flex items-center justify-between px-6">
+          <a href="/" className="text-sm font-semibold text-gray-900">Impulse Studios</a>
+          <span className="text-[11px] text-gray-400">SEO Audit</span>
         </div>
       </header>
 
-      <div className="max-w-3xl mx-auto px-6 pb-24">
+      <div className="max-w-2xl mx-auto px-6 pb-24">
         {!showTeaser ? (
           /* === Progress === */
           <div className="pt-20 text-center">
-            <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">Analyzing</p>
-            <h1 className="text-lg font-semibold mt-2 text-gray-900 truncate">{audit?.url || '...'}</h1>
+            <p className="text-[11px] font-medium text-gray-400 uppercase tracking-wider">Analyzing</p>
+            <h1 className="text-base font-semibold mt-1.5 text-gray-900 truncate">{audit?.url || '...'}</h1>
 
-            <div className="mt-10 max-w-md mx-auto">
-              <div className="flex justify-between text-[11px] text-gray-400 mb-2">
-                <span>Progress</span>
-                <span>{simProgress}%</span>
-              </div>
-              <div className="h-1 bg-gray-200 rounded-full overflow-hidden">
+            <div className="mt-10 max-w-sm mx-auto">
+              <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
                 <div className="h-1 bg-gray-900 rounded-full transition-all duration-300" style={{ width: `${simProgress}%` }} />
               </div>
+              <p className="text-[11px] text-gray-400 mt-2">{simProgress}%</p>
             </div>
 
-            <div className="mt-8 text-left max-w-md mx-auto space-y-2.5">
+            <div className="mt-8 text-left max-w-sm mx-auto space-y-2">
               {STEPS.map((step, i) => (
-                <div key={step} className="flex items-center gap-3 text-sm">
+                <div key={step} className="flex items-center gap-3 text-[13px]">
                   {i < simStep ? (
-                    <span className="w-5 h-5 rounded-full bg-gray-900 text-white flex items-center justify-center text-[10px]">&#10003;</span>
+                    <span className="text-gray-300">&#10003;</span>
                   ) : i === simStep ? (
-                    <span className="w-5 h-5 rounded-full border-2 border-gray-900 flex items-center justify-center">
-                      <span className="w-1.5 h-1.5 bg-gray-900 rounded-full animate-pulse" />
-                    </span>
+                    <span className="w-1.5 h-1.5 bg-gray-900 rounded-full animate-pulse" />
                   ) : (
-                    <span className="w-5 h-5 rounded-full border border-gray-200" />
+                    <span className="w-1.5 h-1.5 bg-gray-200 rounded-full" />
                   )}
-                  <span className={i < simStep ? 'text-gray-400' : i === simStep ? 'text-gray-900 font-medium' : 'text-gray-300'}>
+                  <span className={i < simStep ? 'text-gray-300' : i === simStep ? 'text-gray-900' : 'text-gray-200'}>
                     {step}
                   </span>
                 </div>
@@ -197,63 +198,43 @@ export default function AuditPage() {
           </div>
         ) : (
           /* === Teaser Report === */
-          <div className="pt-8">
-            {/* Grade Card */}
-            <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
-              <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">AI Search Readiness Report</p>
-              <p className="text-sm text-gray-500 mt-1">{audit?.url}</p>
-
-              <div className="mt-6 mb-6">
-                <div className={`inline-flex flex-col items-center justify-center w-24 h-24 rounded-xl border-2 ${gradeColorBg(grade)}`}>
-                  <span className={`text-3xl font-bold ${gradeColor(grade)}`}>{grade}</span>
-                  <span className="text-xs text-gray-500">{score}/100</span>
-                </div>
-              </div>
-
-              {/* Category scores */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {[
-                  { label: 'AI Readiness', score: teaser?.categories?.geo?.score ?? audit?.geo_score ?? 0, grade: teaser?.categories?.geo?.grade || '?' },
-                  { label: 'Technical', score: teaser?.categories?.technical?.score ?? audit?.technical_score ?? 0, grade: teaser?.categories?.technical?.grade || '?' },
-                  { label: 'Content', score: teaser?.categories?.content?.score ?? audit?.content_score ?? 0, grade: teaser?.categories?.content?.grade || '?' },
-                  { label: 'Visibility', score: teaser?.categories?.visibility?.score ?? audit?.visibility_score ?? 0, grade: teaser?.categories?.visibility?.grade || '?' },
-                ].map((cat) => (
-                  <div key={cat.label} className="bg-gray-50 rounded-md p-3 text-center">
-                    <p className="text-[10px] text-gray-400 font-medium uppercase">{cat.label}</p>
-                    <p className={`text-lg font-bold mt-0.5 ${gradeColor(cat.grade)}`}>{cat.grade}</p>
-                    <p className="text-[10px] text-gray-400">{cat.score}/100</p>
-                  </div>
-                ))}
+          <div className="pt-10">
+            {/* URL + Score header */}
+            <div className="text-center pb-8 border-b border-gray-100">
+              <p className="text-[11px] text-gray-400 uppercase tracking-wider">Audit Report</p>
+              <h1 className="text-base font-semibold mt-1 text-gray-900">{audit?.url}</h1>
+              <div className="mt-6 inline-flex items-baseline gap-2">
+                <span className="text-5xl font-bold text-gray-900">{score}</span>
+                <span className="text-lg text-gray-400">/100</span>
               </div>
             </div>
 
-            {/* Critical Issue */}
-            {topIssues[0] && (
-              <div className="mt-4 bg-white rounded-lg border border-red-200 p-5">
-                <div className="flex items-start gap-3">
-                  <span className="flex-shrink-0 w-6 h-6 rounded bg-red-100 text-red-600 flex items-center justify-center text-xs font-bold">!</span>
-                  <div>
-                    <p className="text-xs font-medium text-red-600 uppercase tracking-wider">Critical Issue</p>
-                    <p className="text-sm text-gray-900 mt-1 font-medium">{topIssues[0].title}</p>
-                    <p className="text-xs text-gray-500 mt-1">{topIssues[0].description}</p>
+            {/* Score bars */}
+            <div className="py-6 border-b border-gray-100 space-y-3">
+              {categories.map((cat) => (
+                <div key={cat.label} className="flex items-center gap-4">
+                  <span className="text-[13px] text-gray-500 w-24 shrink-0">{cat.label}</span>
+                  <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                    <div className={`h-2 rounded-full ${scoreBarColor(cat.score)}`} style={{ width: `${cat.score}%` }} />
                   </div>
+                  <span className="text-[13px] font-medium text-gray-900 w-8 text-right">{cat.score}</span>
                 </div>
-              </div>
-            )}
+              ))}
+            </div>
 
             {/* Issues */}
-            {topIssues.length > 1 && (
-              <div className="mt-4 bg-white rounded-lg border border-gray-200 p-5">
-                <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-4">Issues Found</p>
+            {topIssues.length > 0 && (
+              <div className="py-6 border-b border-gray-100">
+                <p className="text-[11px] text-gray-400 uppercase tracking-wider mb-4">Issues Found</p>
                 <div className="space-y-3">
-                  {topIssues.slice(1, 4).map((issue: any, i: number) => (
+                  {topIssues.slice(0, 5).map((issue: any, i: number) => (
                     <div key={i} className="flex items-start gap-3">
-                      <span className={`flex-shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded border ${severityColor(issue.severity)}`}>
+                      <span className={`flex-shrink-0 text-[10px] font-semibold px-1.5 py-0.5 rounded ${severityColor(issue.severity)}`}>
                         {issue.severity === 'critical' ? 'CRIT' : issue.severity === 'high' ? 'HIGH' : 'MED'}
                       </span>
                       <div>
-                        <p className="text-sm text-gray-900 font-medium">{issue.title}</p>
-                        <p className="text-xs text-gray-500 mt-0.5">{issue.impact}</p>
+                        <p className="text-[13px] text-gray-900 font-medium leading-snug">{issue.title}</p>
+                        <p className="text-[12px] text-gray-400 mt-0.5">{issue.impact}</p>
                       </div>
                     </div>
                   ))}
@@ -261,79 +242,58 @@ export default function AuditPage() {
               </div>
             )}
 
-            {/* Full Report Contents */}
-            <div className="mt-4 bg-white rounded-lg border border-gray-200 p-5">
-              <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-4">Full Report Includes</p>
-              <div className="space-y-2">
+            {/* What's in the full report */}
+            <div className="py-6 border-b border-gray-100">
+              <p className="text-[11px] text-gray-400 uppercase tracking-wider mb-4">Full Report Includes</p>
+              <div className="space-y-1.5">
                 {[
-                  { section: 'Quick Wins - fix this week', desc: `${teaser?.stats?.quickWins || 5} high-impact, low-effort changes`, locked: false },
-                  { section: 'AI Search Deep Dive', desc: 'Why AI engines skip your site and how to fix it', locked: true },
-                  { section: 'Technical Audit', desc: `${teaser?.stats?.totalIssues || 15}+ issues with code-level fixes`, locked: true },
-                  { section: 'Content Analysis', desc: 'Page-by-page audit with rewritten copy', locked: true },
-                  { section: 'Competitor Comparison', desc: 'Head-to-head breakdown with top 5 competitors', locked: true },
-                  { section: '90-Day Action Plan', desc: 'Prioritized roadmap with expected impact', locked: true },
-                ].map((item) => (
-                  <div key={item.section} className={`flex items-center justify-between rounded-md p-3 ${item.locked ? 'bg-gray-50' : 'bg-emerald-50 border border-emerald-200'}`}>
-                    <div>
-                      <p className={`text-sm font-medium ${item.locked ? 'text-gray-500' : 'text-gray-900'}`}>{item.section}</p>
-                      <p className="text-xs text-gray-400 mt-0.5">{item.desc}</p>
-                    </div>
-                    {item.locked ? (
-                      <span className="text-[10px] text-gray-400 font-medium bg-gray-100 px-2 py-1 rounded">Locked</span>
-                    ) : (
-                      <span className="text-[10px] text-emerald-600 font-medium bg-emerald-100 px-2 py-1 rounded">Free</span>
-                    )}
+                  `${teaser?.stats?.quickWins || 5} quick wins you can fix this week`,
+                  'AI search deep dive - why ChatGPT skips your site',
+                  `${teaser?.stats?.totalIssues || 15}+ technical issues with code fixes`,
+                  'Page-by-page content audit with rewritten copy',
+                  'Competitor comparison - head-to-head with top 5',
+                  '90-day action plan with priority matrix',
+                ].map((item, i) => (
+                  <div key={i} className="flex items-center gap-2.5 py-1.5">
+                    <span className="w-1 h-1 bg-gray-300 rounded-full shrink-0" />
+                    <span className="text-[13px] text-gray-500">{item}</span>
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Email + CTA */}
-            <div className="mt-6 bg-white rounded-lg border border-gray-200 p-8 text-center">
-              <h2 className="text-base font-semibold text-gray-900">Get the full picture.</h2>
-              <p className="text-sm text-gray-500 mt-2">
-                {teaser?.stats?.totalIssues || 15} issues found. The full report includes step-by-step fix instructions, ready-to-use code, and a prioritized action plan.
-              </p>
-
+            <div className="pt-8 text-center">
               {!audit?.email && !emailSaved ? (
-                <div className="mt-5 max-w-sm mx-auto">
-                  <p className="text-xs text-gray-400 mb-2">Get the free preview emailed to you</p>
+                <div className="mb-6 max-w-sm mx-auto">
+                  <p className="text-[12px] text-gray-400 mb-2">Get the free preview emailed to you</p>
                   <div className="flex gap-2">
                     <input
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@email.com"
-                      className="flex-1 bg-white border border-gray-200 text-gray-900 text-sm px-3 py-2.5 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent placeholder:text-gray-300"
+                      className="flex-1 border border-gray-200 text-gray-900 text-sm px-3 py-2.5 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-900 placeholder:text-gray-300"
                     />
                     <button
                       onClick={handleSaveEmail}
-                      className="bg-gray-100 text-gray-700 text-sm font-medium px-4 py-2.5 rounded-md hover:bg-gray-200 transition-colors whitespace-nowrap"
+                      className="text-gray-500 text-sm font-medium px-4 py-2.5 rounded-md border border-gray-200 hover:bg-gray-50 transition-colors"
                     >
                       Send
                     </button>
                   </div>
                 </div>
               ) : (
-                <p className="text-xs text-emerald-600 mt-4 font-medium">Preview report sent to your email</p>
+                <p className="text-[12px] text-emerald-600 mb-6">Preview report sent to your email</p>
               )}
 
               <button
                 onClick={handleUnlock}
-                className="mt-6 w-full max-w-xs bg-gray-900 text-white text-sm font-semibold py-3 rounded-md hover:bg-gray-800 transition-colors"
+                className="w-full max-w-sm bg-gray-900 text-white text-sm font-semibold py-3.5 rounded-md hover:bg-gray-800 transition-colors"
               >
                 Unlock Full Report - $29
               </button>
-              <p className="text-xs text-gray-400 mt-2">One-time payment. No subscription. Instant delivery.</p>
-            </div>
-
-            {/* Trust bar */}
-            <div className="mt-4 flex items-center justify-center gap-6 text-[10px] text-gray-400">
-              <span>20-page PDF report</span>
-              <span>|</span>
-              <span>Code examples included</span>
-              <span>|</span>
-              <span>Money-back guarantee</span>
+              <p className="text-[11px] text-gray-400 mt-3">One-time payment. Instant PDF delivery. No subscription.</p>
             </div>
           </div>
         )}
