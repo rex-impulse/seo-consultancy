@@ -61,10 +61,10 @@ p,.txt{font-size:13px;color:#374151;line-height:1.6;margin-bottom:5px}
 .fade-visible{margin-bottom:0}
 .fade-blur{position:relative;overflow:hidden;flex:1;min-height:280px}
 .fade-blur-inner{filter:blur(4px);user-select:none;pointer-events:none;opacity:0.35;padding-bottom:60px}
+.fade-blur-inner h3,.fade-blur-inner h4{filter:none}
+.fade-title{position:relative;z-index:1;font-size:14px;font-weight:700;margin:14px 0 6px;color:#111827}
 .fade-gradient{position:absolute;top:0;left:0;right:0;height:40px;background:linear-gradient(to bottom,white,transparent);z-index:1}
-.fade-lock{position:absolute;bottom:30px;left:0;right:0;text-align:center;z-index:2}
-.fade-lock .fl-txt{font-size:14px;font-weight:700;color:#111827;background:white;display:inline-block;padding:8px 20px;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,0.12)}
-.fade-lock .fl-sub{font-size:11px;color:#6b7280;margin-top:4px}
+/* lock overlay is now inline in fadePage, no separate class needed */
 .cta{background:#111827;color:white;padding:16px;border-radius:6px;text-align:center;margin-top:14px}
 .cta h3{color:white;font-size:16px;margin-bottom:5px}
 .cta p{color:#9ca3af;font-size:12px;margin-bottom:10px}
@@ -88,20 +88,34 @@ function bar(score: number, label: string, grade: string): string {
 }
 
 function fadePage(pageNum: number, title: string, visibleHtml: string, blurredHtml: string, lockMsg: string): string {
+  // Extract h3 titles from blurred content and show them unblurred
+  // This way users can read section headers but not the content
+  const titleMatches = blurredHtml.match(/<h3>[^<]+<\/h3>/g) || [];
+  const unblurredTitles = titleMatches.slice(0, 3).map(t => 
+    t.replace('<h3>', '<h3 style="color:#111827;margin:10px 0 2px">').replace('</h3>', '</h3>')
+  );
+  
   return `
   <div class="pg">
     <h2 style="flex-shrink:0">${title}</h2>
     <div class="fade-section" style="flex:1;display:flex;flex-direction:column">
       <div class="fade-visible" style="flex-shrink:0">${visibleHtml}</div>
-      <div class="fade-blur" style="flex:1;min-height:0">
-        <div class="fade-gradient"></div>
-        <div class="fade-blur-inner" style="min-height:100%">${blurredHtml}
-          <p>This section continues with detailed analysis, specific recommendations, implementation steps, and code examples tailored to your website. Each recommendation includes expected impact metrics and priority ranking.</p>
-          <p>The complete analysis covers additional factors including competitor benchmarking, industry-specific optimization opportunities, seasonal trends, and long-term strategic recommendations for sustained growth.</p>
+      <div style="flex:1;position:relative;min-height:0">
+        <!-- Unblurred section titles so they can see what's covered -->
+        <div style="position:relative;z-index:1">
+          ${unblurredTitles.map(t => `<div style="margin-bottom:2px">${t}<div style="height:14px;background:linear-gradient(to right,#e5e7eb 90%,transparent);border-radius:2px;margin:3px 0"></div><div style="height:14px;background:linear-gradient(to right,#e5e7eb 75%,transparent);border-radius:2px;margin:3px 0;width:85%"></div><div style="height:14px;background:linear-gradient(to right,#e5e7eb 60%,transparent);border-radius:2px;margin:3px 0;width:70%"></div></div>`).join('')}
         </div>
-        <div class="fade-lock">
-          <div class="fl-txt">🔒 ${lockMsg}</div>
-          <div class="fl-sub">Available in the full report — $29</div>
+        <!-- Blurred body content -->
+        <div class="fade-blur" style="position:absolute;top:0;left:0;right:0;bottom:0">
+          <div class="fade-blur-inner" style="min-height:100%;padding-top:${unblurredTitles.length * 80}px">${blurredHtml}
+            <p>This section continues with detailed analysis, specific recommendations, implementation steps, and code examples tailored to your website. Each recommendation includes expected impact metrics and priority ranking.</p>
+            <p>The complete analysis covers additional factors including competitor benchmarking, industry-specific optimization opportunities, seasonal trends, and long-term strategic recommendations for sustained growth.</p>
+          </div>
+        </div>
+        <!-- Clean lock overlay — no box, no icon -->
+        <div style="position:absolute;bottom:40px;left:0;right:0;text-align:center;z-index:3">
+          <div style="font-size:14px;font-weight:700;color:#111827">${lockMsg}</div>
+          <div style="font-size:12px;color:#6b7280;margin-top:3px">Unlock the full report — $29</div>
         </div>
       </div>
     </div>
@@ -256,9 +270,9 @@ export function renderTeaserPdfHtml(data: ReportData): string {
         <h3>Expected Impact After Fixes</h3>
         <p>Based on our analysis of similar sites that implemented these recommendations, we estimate the following improvements within 90 days: organic traffic increase of 40-80%, bounce rate reduction of 15-25%, and improved rankings for ${issues.length * 3}+ keywords.</p>
       </div>
-      <div class="fade-lock">
-        <div class="fl-txt">🔒 Fix instructions for all ${issues.length} issues</div>
-        <div class="fl-sub">Includes code examples & priority ranking</div>
+      <div style="position:absolute;bottom:30px;left:0;right:0;text-align:center;z-index:3">
+        <div style="font-size:14px;font-weight:700;color:#111827">Fix instructions for all ${issues.length} issues</div>
+        <div style="font-size:12px;color:#6b7280;margin-top:3px">Includes code examples & priority ranking — $29</div>
       </div>
     </div>
   </div>
