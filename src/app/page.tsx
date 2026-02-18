@@ -4,12 +4,12 @@ import VisibilityCheck from '@/components/VisibilityCheck';
 import FAQ from '@/components/FAQ';
 
 const dimensions = [
-  { icon: '🤖', title: 'AI Search Readiness', desc: 'Can ChatGPT, Perplexity, and Claude find and cite your business? We check bot access, structured data, and content citability.', note: '92% of businesses fail this' },
-  { icon: '🔧', title: 'Technical Health', desc: 'Core Web Vitals, page speed, SSL, crawlability, redirect chains. The foundation everything else depends on.', note: 'Most sites: C+' },
-  { icon: '🔍', title: 'Search Visibility', desc: 'Indexation status, sitemap health, robots.txt rules, canonical tags, and internal linking structure.', note: 'Hidden issues found in 8/10 audits' },
-  { icon: '📝', title: 'Content Quality', desc: 'Thin content detection, meta descriptions, heading structure, image alt text, and duplicate content signals.', note: 'Average: 12 issues per site' },
-  { icon: '📊', title: 'Competitor Insights', desc: 'How you stack up against the top 3 sites in your space. Where they win, where you can catch up.', note: 'Know where you stand' },
-  { icon: '🎯', title: 'Action Plan', desc: 'Every issue prioritized by impact and difficulty. Quick wins this week, strategic moves this quarter.', note: 'Average ROI: 3× traffic' },
+  { num: '01', title: 'AI Search Readiness', desc: 'Can ChatGPT, Perplexity, and Claude find and cite your business? We check bot access, structured data, and content citability.', note: '92% of businesses fail this' },
+  { num: '02', title: 'Technical Health', desc: 'Core Web Vitals, page speed, SSL, crawlability, redirect chains. The foundation everything else depends on.', note: 'Most sites: C+' },
+  { num: '03', title: 'Search Visibility', desc: 'Indexation status, sitemap health, robots.txt rules, canonical tags, and internal linking structure.', note: 'Hidden issues found in 8/10 audits' },
+  { num: '04', title: 'Content Quality', desc: 'Thin content detection, meta descriptions, heading structure, image alt text, and duplicate content signals.', note: 'Average: 12 issues per site' },
+  { num: '05', title: 'Competitor Insights', desc: 'How you stack up against the top 3 sites in your space. Where they win, where you can catch up.', note: 'Know where you stand' },
+  { num: '06', title: 'Action Plan', desc: 'Every issue prioritized by impact and difficulty. Quick wins this week, strategic moves this quarter.', note: 'Average ROI: 3× traffic' },
 ];
 
 export default function Home() {
@@ -71,8 +71,8 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-neutral-900 mt-12 border border-neutral-900">
             {dimensions.map((d) => (
               <div key={d.title} className="bg-neutral-950 p-8">
-                <span className="text-2xl">{d.icon}</span>
-                <h3 className="text-sm font-semibold mt-4">{d.title}</h3>
+                <span className="text-xs font-mono text-neutral-700">{d.num}</span>
+                <h3 className="text-sm font-semibold mt-3">{d.title}</h3>
                 <p className="text-xs text-neutral-500 mt-2 leading-relaxed">{d.desc}</p>
                 <p className="text-[10px] font-mono text-neutral-700 mt-4">{d.note}</p>
               </div>
@@ -126,7 +126,7 @@ export default function Home() {
                 'Most small businesses have zero AI search optimization',
               ].map((stat) => (
                 <div key={stat} className="flex gap-3 items-start">
-                  <span className="text-neutral-700 text-xs mt-0.5">▸</span>
+                  <span className="text-neutral-700 text-xs mt-0.5 font-mono">—</span>
                   <p className="text-sm text-neutral-400">{stat}</p>
                 </div>
               ))}
@@ -139,7 +139,7 @@ export default function Home() {
                 'Is your content structured for citation?',
               ].map((item) => (
                 <div key={item} className="flex gap-2 text-xs text-neutral-500">
-                  <span className="text-neutral-700">✓</span>
+                  <span className="text-neutral-600 font-mono">+</span>
                   {item}
                 </div>
               ))}
@@ -161,13 +161,13 @@ export default function Home() {
               <h3 className="text-sm font-semibold">Free Preview</h3>
               <p className="text-3xl font-bold mt-2">$0</p>
               <div className="mt-6 space-y-2 text-xs text-neutral-500">
-                <p>✓ Overall AI readiness grade</p>
-                <p>✓ Top 3 critical issues</p>
-                <p>✓ Category scores</p>
-                <p>✓ Quick stats</p>
-                <p className="text-neutral-700">✗ Detailed analysis</p>
-                <p className="text-neutral-700">✗ Fix instructions</p>
-                <p className="text-neutral-700">✗ Action plan</p>
+                <p className="flex items-center gap-2"><span className="text-neutral-600 font-mono">+</span>Overall AI readiness grade</p>
+                <p className="flex items-center gap-2"><span className="text-neutral-600 font-mono">+</span>Top 3 critical issues</p>
+                <p className="flex items-center gap-2"><span className="text-neutral-600 font-mono">+</span>Category scores</p>
+                <p className="flex items-center gap-2"><span className="text-neutral-600 font-mono">+</span>Quick stats</p>
+                <p className="text-neutral-700">– Detailed analysis</p>
+                <p className="text-neutral-700">– Fix instructions</p>
+                <p className="text-neutral-700">– Action plan</p>
               </div>
               <a href="#hero" className="block mt-8 text-center border border-neutral-800 text-neutral-400 text-xs py-2.5 rounded-md hover:border-neutral-700 transition-colors">
                 Get Free Preview
@@ -180,13 +180,13 @@ export default function Home() {
               </div>
               <p className="text-3xl font-bold mt-2">$29</p>
               <div className="mt-6 space-y-2 text-xs text-neutral-400">
-                <p>✓ Everything in Free, plus:</p>
-                <p>✓ 15–20 page deep analysis</p>
-                <p>✓ Specific fix instructions</p>
-                <p>✓ AI search optimization guide</p>
-                <p>✓ Competitor comparison</p>
-                <p>✓ Prioritized action plan</p>
-                <p>✓ PDF download</p>
+                <p className="flex items-center gap-2"><span className="text-neutral-600 font-mono">+</span>Everything in Free, plus:</p>
+                <p className="flex items-center gap-2"><span className="text-neutral-600 font-mono">+</span>15–20 page deep analysis</p>
+                <p className="flex items-center gap-2"><span className="text-neutral-600 font-mono">+</span>Specific fix instructions</p>
+                <p className="flex items-center gap-2"><span className="text-neutral-600 font-mono">+</span>AI search optimization guide</p>
+                <p className="flex items-center gap-2"><span className="text-neutral-600 font-mono">+</span>Competitor comparison</p>
+                <p className="flex items-center gap-2"><span className="text-neutral-600 font-mono">+</span>Prioritized action plan</p>
+                <p className="flex items-center gap-2"><span className="text-neutral-600 font-mono">+</span>PDF download</p>
               </div>
               <p className="text-[10px] text-neutral-600 mt-4">
                 Equivalent agency report: <span className="line-through">$500+</span>

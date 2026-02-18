@@ -64,7 +64,7 @@ export default function VisibilityCheck() {
             : 'border-red-900 bg-red-950/50 text-red-300'
         }`}>
           <div className="flex items-start gap-2">
-            <span className="text-lg mt-px">{result.mentioned ? '✓' : '✗'}</span>
+            <span className="text-lg mt-px">{result.mentioned ? '+' : '–'}</span>
             <p>{result.message}</p>
           </div>
         </div>
