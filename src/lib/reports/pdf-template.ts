@@ -1,6 +1,6 @@
 /**
  * Professional 20-page PDF report
- * Page 1: Hook page — grade, scary stat, proof we know their site
+ * Page 1: Hook page - grade, scary stat, proof we know their site
  * Pages 2-20: Each shows ~30% real content, then fades to blur mid-sentence
  */
 
@@ -61,10 +61,10 @@ p,.txt{font-size:13px;color:#374151;line-height:1.6;margin-bottom:5px}
 .fade-visible{margin-bottom:0}
 .fade-blur{position:relative;overflow:hidden;flex:1;min-height:280px}
 .fade-blur-inner{filter:blur(4px);user-select:none;pointer-events:none;opacity:0.35;padding-bottom:60px}
-.fade-blur-inner h3,.fade-blur-inner h4{filter:none}
-.fade-title{position:relative;z-index:1;font-size:14px;font-weight:700;margin:14px 0 6px;color:#111827}
 .fade-gradient{position:absolute;top:0;left:0;right:0;height:40px;background:linear-gradient(to bottom,white,transparent);z-index:1}
-/* lock overlay is now inline in fadePage, no separate class needed */
+.fade-lock{position:absolute;bottom:30px;left:0;right:0;text-align:center;z-index:2}
+.fade-lock .fl-txt{font-size:14px;font-weight:700;color:#111827;background:white;display:inline-block;padding:8px 20px;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,0.12)}
+.fade-lock .fl-sub{font-size:11px;color:#6b7280;margin-top:4px}
 .cta{background:#111827;color:white;padding:16px;border-radius:6px;text-align:center;margin-top:14px}
 .cta h3{color:white;font-size:16px;margin-bottom:5px}
 .cta p{color:#9ca3af;font-size:12px;margin-bottom:10px}
@@ -84,38 +84,24 @@ p,.txt{font-size:13px;color:#374151;line-height:1.6;margin-bottom:5px}
 `;
 
 function bar(score: number, label: string, grade: string): string {
-  return `<div><div class="sr"><span class="sl">${label}</span><span class="sv" style="color:${gc(grade)}">${grade} · ${score}</span></div><div class="bt"><div class="bf" style="width:${score}%;background:${gc(grade)}"></div></div></div>`;
+  return `<div><div class="sr"><span class="sl">${label}</span><span class="sv" style="color:${gc(grade)}">${grade} | ${score}</span></div><div class="bt"><div class="bf" style="width:${score}%;background:${gc(grade)}"></div></div></div>`;
 }
 
 function fadePage(pageNum: number, title: string, visibleHtml: string, blurredHtml: string, lockMsg: string): string {
-  // Extract h3 titles from blurred content and show them unblurred
-  // This way users can read section headers but not the content
-  const titleMatches = blurredHtml.match(/<h3>[^<]+<\/h3>/g) || [];
-  const unblurredTitles = titleMatches.slice(0, 3).map(t => 
-    t.replace('<h3>', '<h3 style="color:#111827;margin:10px 0 2px">').replace('</h3>', '</h3>')
-  );
-  
   return `
   <div class="pg">
     <h2 style="flex-shrink:0">${title}</h2>
     <div class="fade-section" style="flex:1;display:flex;flex-direction:column">
       <div class="fade-visible" style="flex-shrink:0">${visibleHtml}</div>
-      <div style="flex:1;position:relative;min-height:0">
-        <!-- Unblurred section titles so they can see what's covered -->
-        <div style="position:relative;z-index:1">
-          ${unblurredTitles.map(t => `<div style="margin-bottom:2px">${t}<div style="height:14px;background:linear-gradient(to right,#e5e7eb 90%,transparent);border-radius:2px;margin:3px 0"></div><div style="height:14px;background:linear-gradient(to right,#e5e7eb 75%,transparent);border-radius:2px;margin:3px 0;width:85%"></div><div style="height:14px;background:linear-gradient(to right,#e5e7eb 60%,transparent);border-radius:2px;margin:3px 0;width:70%"></div></div>`).join('')}
+      <div class="fade-blur" style="flex:1;min-height:0">
+        <div class="fade-gradient"></div>
+        <div class="fade-blur-inner" style="min-height:100%">${blurredHtml}
+          <p>This section continues with detailed analysis, specific recommendations, implementation steps, and code examples tailored to your website. Each recommendation includes expected impact metrics and priority ranking.</p>
+          <p>The complete analysis covers additional factors including competitor benchmarking, industry-specific optimization opportunities, seasonal trends, and long-term strategic recommendations for sustained growth.</p>
         </div>
-        <!-- Blurred body content -->
-        <div class="fade-blur" style="position:absolute;top:0;left:0;right:0;bottom:0">
-          <div class="fade-blur-inner" style="min-height:100%;padding-top:${unblurredTitles.length * 80}px">${blurredHtml}
-            <p>This section continues with detailed analysis, specific recommendations, implementation steps, and code examples tailored to your website. Each recommendation includes expected impact metrics and priority ranking.</p>
-            <p>The complete analysis covers additional factors including competitor benchmarking, industry-specific optimization opportunities, seasonal trends, and long-term strategic recommendations for sustained growth.</p>
-          </div>
-        </div>
-        <!-- Clean lock overlay — no box, no icon -->
-        <div style="position:absolute;bottom:40px;left:0;right:0;text-align:center;z-index:3">
-          <div style="font-size:14px;font-weight:700;color:#111827">${lockMsg}</div>
-          <div style="font-size:12px;color:#6b7280;margin-top:3px">Unlock the full report — $29</div>
+        <div class="fade-lock">
+          <div class="fl-txt">${lockMsg}</div>
+          <div class="fl-sub">Available in the full report - $29</div>
         </div>
       </div>
     </div>
@@ -155,7 +141,7 @@ export function renderTeaserPdfHtml(data: ReportData): string {
   <div class="hdr">
     <div>
       <h1>SEO & AI Readiness Report</h1>
-      <div class="sub">${data.url} · ${data.date}</div>
+      <div class="sub">${data.url} | ${data.date}</div>
     </div>
     <div class="gr-box">
       <div class="gr-circ" style="background:${gc(data.overallGrade)}">${data.overallGrade}</div>
@@ -165,7 +151,7 @@ export function renderTeaserPdfHtml(data: ReportData): string {
 
   ${hl.shockingStat ? `
   <div class="alert">
-    <div class="stat">⚠ ${hl.shockingStat}</div>
+    <div class="stat">${hl.shockingStat}</div>
     <div class="det">${hl.oneSpecificIssue || ''}</div>
   </div>
   ` : ''}
@@ -216,7 +202,7 @@ export function renderTeaserPdfHtml(data: ReportData): string {
 
   ${hl.estimatedImpact ? `
   <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-left:4px solid #16a34a;padding:8px 12px;border-radius:4px;margin-top:6px">
-    <div style="font-size:11px;font-weight:700;color:#166534">📈 ${hl.estimatedImpact}</div>
+    <div style="font-size:11px;font-weight:700;color:#166534">${hl.estimatedImpact}</div>
   </div>
   ` : ''}
 
@@ -266,13 +252,13 @@ export function renderTeaserPdfHtml(data: ReportData): string {
           </div>
         `).join('')}
         <h3>How to Fix Each Issue</h3>
-        <p>Each issue above includes a detailed fix guide in the full report: step-by-step instructions with code examples, screenshots of what to change, and expected ranking impact. Issues are ranked by a priority score (Impact × Effort) so you focus on the highest-ROI changes first.</p>
+        <p>Each issue above includes a detailed fix guide in the full report: step-by-step instructions with code examples, screenshots of what to change, and expected ranking impact. Issues are ranked by a priority score (Impact x Effort) so you focus on the highest-ROI changes first.</p>
         <h3>Expected Impact After Fixes</h3>
         <p>Based on our analysis of similar sites that implemented these recommendations, we estimate the following improvements within 90 days: organic traffic increase of 40-80%, bounce rate reduction of 15-25%, and improved rankings for ${issues.length * 3}+ keywords.</p>
       </div>
-      <div style="position:absolute;bottom:30px;left:0;right:0;text-align:center;z-index:3">
-        <div style="font-size:14px;font-weight:700;color:#111827">Fix instructions for all ${issues.length} issues</div>
-        <div style="font-size:12px;color:#6b7280;margin-top:3px">Includes code examples & priority ranking — $29</div>
+      <div class="fade-lock">
+        <div class="fl-txt">Fix instructions for all ${issues.length} issues</div>
+        <div class="fl-sub">Includes code examples & priority ranking</div>
       </div>
     </div>
   </div>
@@ -297,7 +283,7 @@ ${fadePage(3, 'AI Search Readiness Analysis',
    <p>PromptHero.com appears in 67% of AI-generated responses about prompt libraries. Their strategy: 15,000+ indexed pages, each with structured FAQ markup, specific usage statistics ("used by 2M+ creators"), and clear category organization that AI engines can parse and reference.</p>
    <p>FlowGPT appears in 45% of responses. Key differentiator: community ratings with specific numbers ("4.8/5 from 50K users"), comprehensive how-to guides, and JSON-LD WebApplication schema that explicitly tells AI engines what their platform does.</p>
    <h3>Your Specific Citation Opportunities</h3>
-   <p>Based on our analysis, the fastest path to AI citations for your site requires three changes, in order of impact: (1) Add an FAQ page with 15+ questions about AI prompts — this alone could increase your citation probability from 8% to 25%, (2) Include specific statistics throughout your content, (3) Implement FAQ and Organization JSON-LD schema markup. The complete implementation guide with ready-to-use code is in the detailed fix sections.</p>
+   <p>Based on our analysis, the fastest path to AI citations for your site requires three changes, in order of impact: (1) Add an FAQ page with 15+ questions about AI prompts - this alone could increase your citation probability from 8% to 25%, (2) Include specific statistics throughout your content, (3) Implement FAQ and Organization JSON-LD schema markup. The complete implementation guide with ready-to-use code is in the detailed fix sections.</p>
    <h3>Projected Citation Improvement Timeline</h3>
    <p>Week 2: Schema markup indexed by search engines. Week 4: FAQ content begins appearing in AI training data refreshes. Week 8: First citations in AI-generated responses. Week 12: Consistent appearance in industry-related AI queries, estimated 30-40% citation rate.</p>`,
   'Full AI citation analysis with competitor comparison'
@@ -380,15 +366,15 @@ ${fadePage(7, 'Content Quality Assessment',
        <div style="padding:4px 8px">600+</div>
      </div>
    </div>
-   <p>Both pages are classified as "thin content" by Google's quality guidelines. Pages under 300 words signal to search algorithms that the page lacks depth and expertise. Top-ranking competitors in the AI prompt space average 1,200-2,000 words per page. Your total indexed content is 535 words — less than a single page of most competitors.</p>
+   <p>Both pages are classified as "thin content" by Google's quality guidelines. Pages under 300 words signal to search algorithms that the page lacks depth and expertise. Top-ranking competitors in the AI prompt space average 1,200-2,000 words per page. Your total indexed content is 535 words - less than a single page of most competitors.</p>
    <h3>Content Gap Analysis</h3>
    <p>Missing content sections on your homepage that competitors include: (1) detailed product explanation with use cases, (2) category browsing section, (3) user testimonials or social proof, (4) FAQ section with 10+ questions, (5) comparison with alternatives, (6) "How it works" walkthrough, (7) featured/popular prompts showcase.</p>
    <p>Your waitlist page is missing: value proposition beyond "join the waitlist", feature previews, launch timeline, FAQ about the beta/launch process, social proof ("1,000+ people already signed up").</p>`,
   `<h3>Rewritten Homepage Copy (800+ words)</h3>
-   <p><strong>Recommended H1:</strong> Discover the Best AI Prompts — Curated Library for ChatGPT, Claude & Midjourney</p>
+   <p><strong>Recommended H1:</strong> Discover the Best AI Prompts - Curated Library for ChatGPT, Claude & Midjourney</p>
    <p><strong>Opening paragraph:</strong> Finding the right prompt shouldn't take longer than using it. zigzag curates the most effective AI prompts across 20 categories, tested and rated by our community of prompt engineers. Whether you're writing marketing copy, generating code, or creating images, our library gives you proven prompts that work on the first try.</p>
-   <p><strong>How It Works section:</strong> Browse our curated collection → Save your favorites → Rate and share prompts with the community. New prompts added daily, each tested for effectiveness across multiple AI models.</p>
-   <p><strong>Category section:</strong> Writing & Content (240 prompts) · Code & Development (180 prompts) · Marketing (150 prompts) · Image Generation (200 prompts) · Business (120 prompts) · Education (90 prompts)...</p>
+   <p><strong>How It Works section:</strong> Browse our curated collection -> Save your favorites -> Rate and share prompts with the community. New prompts added daily, each tested for effectiveness across multiple AI models.</p>
+   <p><strong>Category section:</strong> Writing & Content (240 prompts) | Code & Development (180 prompts) | Marketing (150 prompts) | Image Generation (200 prompts) | Business (120 prompts) | Education (90 prompts)...</p>
    <p>[Full 800-word homepage copy continues with: Why Quality Prompts Matter, Community Features, Testimonials, FAQ with 15 Q&As, prompt examples, comparison table vs competitors]</p>
    <h3>Rewritten Waitlist Page (600+ words)</h3>
    <p>[Complete waitlist page copy with expanded value proposition, feature previews with mockups, launch timeline, "What you'll get" checklist, FAQ about early access, social proof section]</p>`,
@@ -400,7 +386,7 @@ ${fadePage(8, 'Content Quality (continued)',
   `<h3>Heading Structure</h3>
    <p>Your current heading hierarchy has gaps that make it harder for search engines to understand your content organization. We found pages missing H1 tags and inconsistent H2-H3 nesting...</p>`,
   `<h3>Optimized Heading Structure (Copy This)</h3>
-   <p>H1: Discover and Collect the Best AI Prompts — Free Prompt Library<br>
+   <p>H1: Discover and Collect the Best AI Prompts - Free Prompt Library<br>
    H2: Browse Prompts by Category<br>
    H2: Why Prompt Quality Matters<br>
    H2: How zigzag Works<br>
@@ -416,11 +402,11 @@ ${fadePage(8, 'Content Quality (continued)',
 
 <!-- PAGE 9: Visual Audit -->
 ${fadePage(9, 'Visual Audit: What Search Engines See',
-  `<h3>Desktop View — Current State</h3>
+  `<h3>Desktop View - Current State</h3>
    ${data.screenshots?.desktop ? `<div class="ss-box"><div class="ss-lbl">Your site as seen by Google</div><img class="ss-img" src="data:image/jpeg;base64,${data.screenshots.desktop}" /></div>` : '<div class="ss-box"><div class="ss-lbl">Desktop screenshot captured</div><div style="height:200px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;color:#9ca3af">Screenshot available in full report</div></div>'}
    <p>First impressions matter. Search engines evaluate visual layout, content density, and above-the-fold content when ranking pages...</p>`,
   `<h3>Desktop Issues Identified</h3>
-   <p>1. Above-the-fold content is mostly decorative — no clear value proposition visible without scrolling</p>
+   <p>1. Above-the-fold content is mostly decorative - no clear value proposition visible without scrolling</p>
    <p>2. Navigation lacks descriptive anchor text that helps SEO</p>
    <p>3. No visible social proof or trust signals</p>
    <h3>Recommended Desktop Layout Changes</h3>
@@ -446,10 +432,10 @@ ${fadePage(11, 'Competitor Analysis',
   `<p>${compSplit.visible}</p>`,
   `<h3>Top 5 Competitors Ranked</h3>
    <p>We analyzed the top-ranking sites for "AI prompt library", "best prompts for ChatGPT", and "prompt marketplace":</p>
-   <p>1. PromptHero — Score: 92/100 — Strong blog, 500+ indexed pages<br>
-   2. FlowGPT — Score: 88/100 — Community-driven, high engagement signals<br>
-   3. PromptBase — Score: 91/100 — Marketplace model, excellent schema markup<br>
-   4. awesome-prompts (GitHub) — Score: 85/100 — High domain authority</p>
+   <p>1. PromptHero - Score: 92/100 - Strong blog, 500+ indexed pages<br>
+   2. FlowGPT - Score: 88/100 - Community-driven, high engagement signals<br>
+   3. PromptBase - Score: 91/100 - Marketplace model, excellent schema markup<br>
+   4. awesome-prompts (GitHub) - Score: 85/100 - High domain authority</p>
    <h3>What They Do That You Don't</h3>
    <p>The #1 differentiator: all top competitors have 10x more indexable content. PromptHero has 15,000 indexed pages. You have 2. Content volume is the primary gap...</p>`,
   'Full competitor breakdown & keyword gaps'
@@ -460,11 +446,11 @@ ${fadePage(12, 'Competitor Analysis (continued)',
   `<h3>Keyword Gaps</h3>
    <p>We identified 47 keywords where competitors rank in the top 10 but your site doesn't appear at all. The highest-opportunity keywords by search volume are...</p>`,
   `<h3>Top 20 Keyword Opportunities</h3>
-   <p>1. "chatgpt prompts" — 110K monthly searches — Difficulty: Medium<br>
-   2. "ai prompts" — 74K monthly — Difficulty: Medium<br>
-   3. "midjourney prompts" — 90K monthly — Difficulty: High<br>
-   4. "best ai prompts for writing" — 12K monthly — Difficulty: Low<br>
-   5. "prompt engineering examples" — 18K monthly — Difficulty: Low</p>
+   <p>1. "chatgpt prompts" - 110K monthly searches - Difficulty: Medium<br>
+   2. "ai prompts" - 74K monthly - Difficulty: Medium<br>
+   3. "midjourney prompts" - 90K monthly - Difficulty: High<br>
+   4. "best ai prompts for writing" - 12K monthly - Difficulty: Low<br>
+   5. "prompt engineering examples" - 18K monthly - Difficulty: Low</p>
    <h3>Content Strategy to Close the Gap</h3>
    <p>Based on keyword difficulty and your current authority, we recommend targeting long-tail keywords first. Here's a 12-week content calendar...</p>
    <h3>Backlink Opportunity Analysis</h3>
@@ -492,15 +478,15 @@ ${fadePage(13, 'Fix Guide: Page Load Speed',
 
 ${fadePage(14, 'Fix Guide: Thin Content',
   `<h3>The Problem</h3>
-   <p>Both your pages have under 300 words. Google considers pages below 300 words as "thin content" — a signal of low quality that suppresses rankings. Your homepage has 270 words and your waitlist page has 265.</p>
+   <p>Both your pages have under 300 words. Google considers pages below 300 words as "thin content" - a signal of low quality that suppresses rankings. Your homepage has 270 words and your waitlist page has 265.</p>
    <h3>What Good Looks Like</h3>
    <p>Top-ranking pages in the "AI prompts" space average 1,200-2,000 words. They include detailed descriptions, use cases, comparisons, and FAQ sections.</p>`,
   `<h3>Rewritten Homepage (800+ words, ready to use)</h3>
-   <p><strong>H1: Discover the Best AI Prompts — Curated Library for ChatGPT, Claude & Midjourney</strong></p>
+   <p><strong>H1: Discover the Best AI Prompts - Curated Library for ChatGPT, Claude & Midjourney</strong></p>
    <p>Finding the right prompt shouldn't take longer than using it. zigzag curates the most effective AI prompts across 20 categories, tested and rated by our community of 10,000+ prompt engineers...</p>
    <p>[Full 800+ word homepage copy continues with sections for: How It Works, Browse by Category, Why Quality Prompts Matter, Community Features, FAQ]</p>
    <h3>Rewritten Waitlist Page (600+ words)</h3>
-   <p><strong>H1: Join the zigzag Waitlist — Early Access to the Smartest Prompt Library</strong></p>
+   <p><strong>H1: Join the zigzag Waitlist - Early Access to the Smartest Prompt Library</strong></p>
    <p>[Full waitlist page copy with value propositions, feature previews, social proof section, FAQ about the launch timeline]</p>`,
   'Ready-to-paste page copy for both pages'
 )}
@@ -519,12 +505,12 @@ ${fadePage(15, 'Fix Guide: FAQ Content & AI Citability',
 
 ${fadePage(16, 'Fix Guide: Internal Linking & Statistics',
   `<h3>Internal Linking Problem</h3>
-   <p>Your homepage has only 1 internal link. This severely limits how search engines discover and rank your content. Google's crawler follows links to find pages — with only 1 link, most of your content is essentially hidden.</p>`,
+   <p>Your homepage has only 1 internal link. This severely limits how search engines discover and rank your content. Google's crawler follows links to find pages - with only 1 link, most of your content is essentially hidden.</p>`,
   `<h3>Recommended Link Architecture</h3>
-   <p>Homepage → Category pages (10 links)<br>
-   Homepage → Top prompts (5 links)<br>
-   Homepage → Blog/guides (3 links)<br>
-   Each category → Related categories (3-4 links)<br>
+   <p>Homepage -> Category pages (10 links)<br>
+   Homepage -> Top prompts (5 links)<br>
+   Homepage -> Blog/guides (3 links)<br>
+   Each category -> Related categories (3-4 links)<br>
    Total recommended: 25-30 internal links minimum</p>
    <h3>Adding Quotable Statistics</h3>
    <p>Content with specific statistics is 3x more likely to be cited by AI search engines. Here are statistics you should add to your site:</p>
@@ -545,7 +531,7 @@ ${fadePage(17, '90-Day Action Plan',
    <h3>Weeks 2-4: Foundation</h3>
    ${ap.mediumTerm?.map((w: string, i: number) => `<div class="ai"><div class="an">${i+1}</div><div>${w}</div></div>`).join('') || '<p>Medium-term optimizations...</p>'}
    <h3>Priority Matrix</h3>
-   <p>Each action is ranked by: Impact (1-10) × Effort (1-10). Focus on high-impact, low-effort items first. The full matrix helps you allocate your time optimally...</p>`,
+   <p>Each action is ranked by: Impact (1-10) x Effort (1-10). Focus on high-impact, low-effort items first. The full matrix helps you allocate your time optimally...</p>`,
   'Complete action plan with priority matrix'
 )}
 
@@ -570,34 +556,34 @@ ${fadePage(18, '90-Day Action Plan (continued)',
 <!-- PAGES 19-20: Checklist + CTA -->
 ${fadePage(19, 'Implementation Checklist',
   `<h3>Technical Fixes</h3>
-   <p>☐ Optimize images to WebP (est. -1.5s load time)<br>
-   ☐ Defer non-critical JavaScript (est. -0.8s)<br>
-   ☐ Enable Brotli compression (est. -0.5s)<br>
-   ☐ Add H1 tags to all pages</p>
+   <p>[ ] Optimize images to WebP (est. -1.5s load time)<br>
+   [ ] Defer non-critical JavaScript (est. -0.8s)<br>
+   [ ] Enable Brotli compression (est. -0.5s)<br>
+   [ ] Add H1 tags to all pages</p>
    <h3>Content Fixes</h3>
-   <p>☐ Expand homepage to 800+ words<br>
-   ☐ Expand waitlist page to 600+ words</p>`,
-  `<p>☐ Add FAQ section with 15 Q&As<br>
-   ☐ Include quotable statistics (5 minimum)<br>
-   ☐ Add testimonials or social proof section<br>
-   ☐ Create comparison page vs competitors</p>
+   <p>[ ] Expand homepage to 800+ words<br>
+   [ ] Expand waitlist page to 600+ words</p>`,
+  `<p>[ ] Add FAQ section with 15 Q&As<br>
+   [ ] Include quotable statistics (5 minimum)<br>
+   [ ] Add testimonials or social proof section<br>
+   [ ] Create comparison page vs competitors</p>
    <h3>SEO Infrastructure</h3>
-   <p>☐ Add FAQ JSON-LD schema<br>
-   ☐ Add Organization schema<br>
-   ☐ Add WebApplication schema<br>
-   ☐ Implement internal linking plan (25+ links)<br>
-   ☐ Optimize meta descriptions for all pages<br>
-   ☐ Set up Google Search Console<br>
-   ☐ Submit sitemap to Google & Bing</p>
+   <p>[ ] Add FAQ JSON-LD schema<br>
+   [ ] Add Organization schema<br>
+   [ ] Add WebApplication schema<br>
+   [ ] Implement internal linking plan (25+ links)<br>
+   [ ] Optimize meta descriptions for all pages<br>
+   [ ] Set up Google Search Console<br>
+   [ ] Submit sitemap to Google & Bing</p>
    <h3>Content Creation</h3>
-   <p>☐ Write 4 long-form blog posts (month 2)<br>
-   ☐ Create category landing pages<br>
-   ☐ Build "How It Works" detailed page<br>
-   ☐ Publish comparison guides</p>
+   <p>[ ] Write 4 long-form blog posts (month 2)<br>
+   [ ] Create category landing pages<br>
+   [ ] Build "How It Works" detailed page<br>
+   [ ] Publish comparison guides</p>
    <h3>Monitoring</h3>
-   <p>☐ Set up weekly rank tracking<br>
-   ☐ Monitor Core Web Vitals monthly<br>
-   ☐ Track AI citation appearances quarterly</p>`,
+   <p>[ ] Set up weekly rank tracking<br>
+   [ ] Monitor Core Web Vitals monthly<br>
+   [ ] Track AI citation appearances quarterly</p>`,
   'Full 30-item implementation checklist'
 )}
 
@@ -607,38 +593,38 @@ ${fadePage(19, 'Implementation Checklist',
     <h2 style="border:none;font-size:20px;text-align:center;padding:0">Your Website Has ${issues.length} Issues<br>Holding Back Your Growth</h2>
     
     <p style="text-align:center;max-width:480px;margin:12px auto;font-size:13px;color:#374151">
-      This free preview showed you what's broken. The full report shows you <strong>exactly how to fix it</strong> — with ready-to-use copy, code snippets, and a prioritized action plan.
+      This free preview showed you what's broken. The full report shows you <strong>exactly how to fix it</strong> - with ready-to-use copy, code snippets, and a prioritized action plan.
     </p>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:500px;margin:20px auto;text-align:left">
-      <div class="finding"><div class="f-label">Free preview</div><div class="f-text">2 pages · Issues identified</div></div>
-      <div class="finding" style="border-color:#16a34a;background:#f0fdf4"><div class="f-label" style="color:#16a34a">Full report</div><div class="f-text">20 pages · Step-by-step fixes</div></div>
+      <div class="finding"><div class="f-label">Free preview</div><div class="f-text">2 pages | Issues identified</div></div>
+      <div class="finding" style="border-color:#16a34a;background:#f0fdf4"><div class="f-label" style="color:#16a34a">Full report</div><div class="f-text">20 pages | Step-by-step fixes</div></div>
     </div>
 
     <div style="max-width:500px;margin:16px auto;text-align:left">
-      <div class="ai"><div class="an">✓</div><div>Rewritten page copy (800+ words, ready to paste)</div></div>
-      <div class="ai"><div class="an">✓</div><div>15 FAQ Q&As with JSON-LD schema code</div></div>
-      <div class="ai"><div class="an">✓</div><div>Technical fixes with code examples</div></div>
-      <div class="ai"><div class="an">✓</div><div>Competitor analysis with keyword gaps</div></div>
-      <div class="ai"><div class="an">✓</div><div>90-day action plan with priority matrix</div></div>
-      <div class="ai"><div class="an">✓</div><div>30-item implementation checklist</div></div>
+      <div class="ai"><div class="an">+</div><div>Rewritten page copy (800+ words, ready to paste)</div></div>
+      <div class="ai"><div class="an">+</div><div>15 FAQ Q&As with JSON-LD schema code</div></div>
+      <div class="ai"><div class="an">+</div><div>Technical fixes with code examples</div></div>
+      <div class="ai"><div class="an">+</div><div>Competitor analysis with keyword gaps</div></div>
+      <div class="ai"><div class="an">+</div><div>90-day action plan with priority matrix</div></div>
+      <div class="ai"><div class="an">+</div><div>30-item implementation checklist</div></div>
     </div>
 
     ${hl.estimatedImpact ? `
     <div style="background:#f0fdf4;border:1px solid #bbf7d0;padding:12px 20px;border-radius:6px;margin:16px auto;max-width:500px">
-      <div style="font-size:13px;font-weight:700;color:#166534">📈 ${hl.estimatedImpact}</div>
+      <div style="font-size:13px;font-weight:700;color:#166534">${hl.estimatedImpact}</div>
     </div>
     ` : ''}
 
     <div class="cta" style="max-width:500px;margin:16px auto">
       <h3>Unlock Your Full Report</h3>
       <p>One-time payment. No subscription. Instant delivery.</p>
-      <a href="https://seo.impulsestudios.cc" class="cta-btn">Get Full Report — $29</a>
+      <a href="https://seo.impulsestudios.cc" class="cta-btn">Get Full Report - $29</a>
     </div>
   </div>
 
   <div class="ft">
-    <span>Generated by Impulse Studios · AI-Powered SEO Audit</span>
+    <span>Generated by Impulse Studios | AI-Powered SEO Audit</span>
     <span>${data.date}</span>
   </div>
   <div class="pn">20</div>
