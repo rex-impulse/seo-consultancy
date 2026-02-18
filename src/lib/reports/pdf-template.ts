@@ -57,14 +57,7 @@ p,.txt{font-size:13px;color:#374151;line-height:1.6;margin-bottom:5px}
 .ss-box{border:1px solid #e5e7eb;border-radius:4px;overflow:hidden;margin-bottom:10px}
 .ss-lbl{background:#f9fafb;padding:5px 10px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;color:#6b7280;border-bottom:1px solid #e5e7eb}
 .ss-img{width:100%;display:block}
-.fade-section{position:relative;flex:1;display:flex;flex-direction:column;min-height:0}
-.fade-visible{margin-bottom:0}
-.fade-blur{position:relative;overflow:hidden;flex:1;min-height:280px}
-.fade-blur-inner{filter:blur(4px);user-select:none;pointer-events:none;opacity:0.35;padding-bottom:60px}
-.fade-blur-inner h3,.fade-blur-inner h4{filter:none}
-.fade-title{position:relative;z-index:1;font-size:14px;font-weight:700;margin:14px 0 6px;color:#111827}
-.fade-gradient{position:absolute;top:0;left:0;right:0;height:40px;background:linear-gradient(to bottom,white,transparent);z-index:1}
-/* lock overlay is now inline in fadePage, no separate class needed */
+/* locked section cards replace old blur approach */
 .cta{background:#111827;color:white;padding:16px;border-radius:6px;text-align:center;margin-top:14px}
 .cta h3{color:white;font-size:16px;margin-bottom:5px}
 .cta p{color:#9ca3af;font-size:12px;margin-bottom:10px}
@@ -88,35 +81,28 @@ function bar(score: number, label: string, grade: string): string {
 }
 
 function fadePage(pageNum: number, title: string, visibleHtml: string, blurredHtml: string, lockMsg: string): string {
-  // Extract h3 titles from blurred content and show them unblurred
-  // This way users can read section headers but not the content
-  const titleMatches = blurredHtml.match(/<h3>[^<]+<\/h3>/g) || [];
-  const unblurredTitles = titleMatches.slice(0, 3).map(t => 
-    t.replace('<h3>', '<h3 style="color:#111827;margin:10px 0 2px">').replace('</h3>', '</h3>')
-  );
+  // Extract h3 section titles from blurred content to show as locked cards
+  const titleMatches = blurredHtml.match(/<h3>([^<]+)<\/h3>/g) || [];
+  const sectionTitles = titleMatches.map(t => t.replace(/<\/?h3>/g, ''));
   
   return `
   <div class="pg">
     <h2 style="flex-shrink:0">${title}</h2>
-    <div class="fade-section" style="flex:1;display:flex;flex-direction:column">
-      <div class="fade-visible" style="flex-shrink:0">${visibleHtml}</div>
-      <div style="flex:1;position:relative;min-height:0">
-        <!-- Unblurred section titles so they can see what's covered -->
-        <div style="position:relative;z-index:1">
-          ${unblurredTitles.map(t => `<div style="margin-bottom:2px">${t}<div style="height:14px;background:linear-gradient(to right,#e5e7eb 90%,transparent);border-radius:2px;margin:3px 0"></div><div style="height:14px;background:linear-gradient(to right,#e5e7eb 75%,transparent);border-radius:2px;margin:3px 0;width:85%"></div><div style="height:14px;background:linear-gradient(to right,#e5e7eb 60%,transparent);border-radius:2px;margin:3px 0;width:70%"></div></div>`).join('')}
-        </div>
-        <!-- Blurred body content -->
-        <div class="fade-blur" style="position:absolute;top:0;left:0;right:0;bottom:0">
-          <div class="fade-blur-inner" style="min-height:100%;padding-top:${unblurredTitles.length * 80}px">${blurredHtml}
-            <p>This section continues with detailed analysis, specific recommendations, implementation steps, and code examples tailored to your website. Each recommendation includes expected impact metrics and priority ranking.</p>
-            <p>The complete analysis covers additional factors including competitor benchmarking, industry-specific optimization opportunities, seasonal trends, and long-term strategic recommendations for sustained growth.</p>
-          </div>
-        </div>
-        <!-- Clean lock overlay — no box, no icon -->
-        <div style="position:absolute;bottom:40px;left:0;right:0;text-align:center;z-index:3">
-          <div style="font-size:14px;font-weight:700;color:#111827">${lockMsg}</div>
-          <div style="font-size:12px;color:#6b7280;margin-top:3px">Unlock the full report — $29</div>
-        </div>
+    <div style="flex:1;display:flex;flex-direction:column">
+      <div style="flex-shrink:0">${visibleHtml}</div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:0;margin-top:14px">
+        ${sectionTitles.map(s => `
+          <a href="https://seo.impulsestudios.cc" style="text-decoration:none;display:block;border:1px solid #e5e7eb;border-radius:6px;padding:14px 18px;margin-bottom:8px;background:#fafafa">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div style="font-size:14px;font-weight:600;color:#111827">${s}</div>
+              <div style="font-size:11px;color:#2563eb;font-weight:600;white-space:nowrap;margin-left:12px">Unlock ></div>
+            </div>
+          </a>
+        `).join('')}
+        <a href="https://seo.impulsestudios.cc" style="text-decoration:none;display:block;border:1px dashed #d1d5db;border-radius:6px;padding:12px 18px;margin-bottom:8px;text-align:center">
+          <div style="font-size:13px;font-weight:600;color:#6b7280">${lockMsg}</div>
+          <div style="font-size:11px;color:#2563eb;font-weight:600;margin-top:4px">Get Full Report - $29 ></div>
+        </a>
       </div>
     </div>
     <div class="pn">${pageNum}</div>
@@ -165,7 +151,7 @@ export function renderTeaserPdfHtml(data: ReportData): string {
 
   ${hl.shockingStat ? `
   <div class="alert">
-    <div class="stat">⚠ ${hl.shockingStat}</div>
+    <div class="stat">ALERT: ${hl.shockingStat}</div>
     <div class="det">${hl.oneSpecificIssue || ''}</div>
   </div>
   ` : ''}
@@ -216,7 +202,7 @@ export function renderTeaserPdfHtml(data: ReportData): string {
 
   ${hl.estimatedImpact ? `
   <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-left:4px solid #16a34a;padding:8px 12px;border-radius:4px;margin-top:6px">
-    <div style="font-size:11px;font-weight:700;color:#166534">📈 ${hl.estimatedImpact}</div>
+    <div style="font-size:11px;font-weight:700;color:#166534">${hl.estimatedImpact}</div>
   </div>
   ` : ''}
 
@@ -256,24 +242,20 @@ export function renderTeaserPdfHtml(data: ReportData): string {
         </div>
       `).join('')}
     </div>
-    <div class="fade-blur">
-      <div class="fade-gradient"></div>
-      <div class="fade-blur-inner">
-        ${issues.slice(5).map(i => `
-          <div class="ir">
-            <span class="badge" style="background:${sc(i.severity)}">${i.severity}</span>
-            <div style="flex:1"><div class="it">${i.title}</div><div class="id">${i.description}</div></div>
+    <div style="margin-top:12px">
+      ${issues.slice(5).map(i => `
+        <a href="https://seo.impulsestudios.cc" style="text-decoration:none;display:block;border:1px solid #e5e7eb;border-radius:6px;padding:12px 16px;margin-bottom:6px;background:#fafafa">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="display:flex;align-items:center;gap:8px"><span class="badge" style="background:${sc(i.severity)}">${i.severity}</span><span style="font-size:13px;font-weight:600;color:#111827">${i.title}</span></div>
+            <div style="font-size:11px;color:#2563eb;font-weight:600">How to fix ></div>
           </div>
-        `).join('')}
-        <h3>How to Fix Each Issue</h3>
-        <p>Each issue above includes a detailed fix guide in the full report: step-by-step instructions with code examples, screenshots of what to change, and expected ranking impact. Issues are ranked by a priority score (Impact × Effort) so you focus on the highest-ROI changes first.</p>
-        <h3>Expected Impact After Fixes</h3>
-        <p>Based on our analysis of similar sites that implemented these recommendations, we estimate the following improvements within 90 days: organic traffic increase of 40-80%, bounce rate reduction of 15-25%, and improved rankings for ${issues.length * 3}+ keywords.</p>
-      </div>
-      <div style="position:absolute;bottom:30px;left:0;right:0;text-align:center;z-index:3">
-        <div style="font-size:14px;font-weight:700;color:#111827">Fix instructions for all ${issues.length} issues</div>
-        <div style="font-size:12px;color:#6b7280;margin-top:3px">Includes code examples & priority ranking — $29</div>
-      </div>
+        </a>
+      `).join('')}
+      <a href="https://seo.impulsestudios.cc" style="text-decoration:none;display:block;border:1px dashed #d1d5db;border-radius:6px;padding:14px 18px;margin-top:8px;text-align:center">
+        <div style="font-size:14px;font-weight:600;color:#111827">Step-by-step fix guide for all ${issues.length} issues</div>
+        <div style="font-size:12px;color:#6b7280;margin-top:2px">Includes code examples, priority ranking & expected impact</div>
+        <div style="font-size:12px;color:#2563eb;font-weight:600;margin-top:6px">Get Full Report - $29 ></div>
+      </a>
     </div>
   </div>
   ` : ''}
@@ -570,34 +552,34 @@ ${fadePage(18, '90-Day Action Plan (continued)',
 <!-- PAGES 19-20: Checklist + CTA -->
 ${fadePage(19, 'Implementation Checklist',
   `<h3>Technical Fixes</h3>
-   <p>☐ Optimize images to WebP (est. -1.5s load time)<br>
-   ☐ Defer non-critical JavaScript (est. -0.8s)<br>
-   ☐ Enable Brotli compression (est. -0.5s)<br>
-   ☐ Add H1 tags to all pages</p>
+   <p>[ ] Optimize images to WebP (est. -1.5s load time)<br>
+   [ ] Defer non-critical JavaScript (est. -0.8s)<br>
+   [ ] Enable Brotli compression (est. -0.5s)<br>
+   [ ] Add H1 tags to all pages</p>
    <h3>Content Fixes</h3>
-   <p>☐ Expand homepage to 800+ words<br>
-   ☐ Expand waitlist page to 600+ words</p>`,
-  `<p>☐ Add FAQ section with 15 Q&As<br>
-   ☐ Include quotable statistics (5 minimum)<br>
-   ☐ Add testimonials or social proof section<br>
-   ☐ Create comparison page vs competitors</p>
+   <p>[ ] Expand homepage to 800+ words<br>
+   [ ] Expand waitlist page to 600+ words</p>`,
+  `<p>[ ] Add FAQ section with 15 Q&As<br>
+   [ ] Include quotable statistics (5 minimum)<br>
+   [ ] Add testimonials or social proof section<br>
+   [ ] Create comparison page vs competitors</p>
    <h3>SEO Infrastructure</h3>
-   <p>☐ Add FAQ JSON-LD schema<br>
-   ☐ Add Organization schema<br>
-   ☐ Add WebApplication schema<br>
-   ☐ Implement internal linking plan (25+ links)<br>
-   ☐ Optimize meta descriptions for all pages<br>
-   ☐ Set up Google Search Console<br>
-   ☐ Submit sitemap to Google & Bing</p>
+   <p>[ ] Add FAQ JSON-LD schema<br>
+   [ ] Add Organization schema<br>
+   [ ] Add WebApplication schema<br>
+   [ ] Implement internal linking plan (25+ links)<br>
+   [ ] Optimize meta descriptions for all pages<br>
+   [ ] Set up Google Search Console<br>
+   [ ] Submit sitemap to Google & Bing</p>
    <h3>Content Creation</h3>
-   <p>☐ Write 4 long-form blog posts (month 2)<br>
-   ☐ Create category landing pages<br>
-   ☐ Build "How It Works" detailed page<br>
-   ☐ Publish comparison guides</p>
+   <p>[ ] Write 4 long-form blog posts (month 2)<br>
+   [ ] Create category landing pages<br>
+   [ ] Build "How It Works" detailed page<br>
+   [ ] Publish comparison guides</p>
    <h3>Monitoring</h3>
-   <p>☐ Set up weekly rank tracking<br>
-   ☐ Monitor Core Web Vitals monthly<br>
-   ☐ Track AI citation appearances quarterly</p>`,
+   <p>[ ] Set up weekly rank tracking<br>
+   [ ] Monitor Core Web Vitals monthly<br>
+   [ ] Track AI citation appearances quarterly</p>`,
   'Full 30-item implementation checklist'
 )}
 
@@ -616,17 +598,17 @@ ${fadePage(19, 'Implementation Checklist',
     </div>
 
     <div style="max-width:500px;margin:16px auto;text-align:left">
-      <div class="ai"><div class="an">✓</div><div>Rewritten page copy (800+ words, ready to paste)</div></div>
-      <div class="ai"><div class="an">✓</div><div>15 FAQ Q&As with JSON-LD schema code</div></div>
-      <div class="ai"><div class="an">✓</div><div>Technical fixes with code examples</div></div>
-      <div class="ai"><div class="an">✓</div><div>Competitor analysis with keyword gaps</div></div>
-      <div class="ai"><div class="an">✓</div><div>90-day action plan with priority matrix</div></div>
-      <div class="ai"><div class="an">✓</div><div>30-item implementation checklist</div></div>
+      <div class="ai"><div class="an">+</div><div>Rewritten page copy (800+ words, ready to paste)</div></div>
+      <div class="ai"><div class="an">+</div><div>15 FAQ Q&As with JSON-LD schema code</div></div>
+      <div class="ai"><div class="an">+</div><div>Technical fixes with code examples</div></div>
+      <div class="ai"><div class="an">+</div><div>Competitor analysis with keyword gaps</div></div>
+      <div class="ai"><div class="an">+</div><div>90-day action plan with priority matrix</div></div>
+      <div class="ai"><div class="an">+</div><div>30-item implementation checklist</div></div>
     </div>
 
     ${hl.estimatedImpact ? `
     <div style="background:#f0fdf4;border:1px solid #bbf7d0;padding:12px 20px;border-radius:6px;margin:16px auto;max-width:500px">
-      <div style="font-size:13px;font-weight:700;color:#166534">📈 ${hl.estimatedImpact}</div>
+      <div style="font-size:13px;font-weight:700;color:#166534">${hl.estimatedImpact}</div>
     </div>
     ` : ''}
 
@@ -648,11 +630,11 @@ ${fadePage(19, 'Implementation Checklist',
 }
 
 export function renderFullPdfHtml(data: ReportData): string {
-  // Full report = teaser with blurs removed
+  // Full report — for now same as teaser (locked sections become visible in paid version)
+  // TODO: generate full content pages without locked cards
   return renderTeaserPdfHtml(data)
-    .replace(/fade-blur-inner/g, 'fade-blur-inner-visible')
-    .replace(/filter:blur\(4px\)/g, 'filter:none')
-    .replace(/opacity:0\.35/g, 'opacity:1')
-    .replace(/class="fade-lock"/g, 'class="fade-lock" style="display:none"')
-    .replace(/class="fade-gradient"/g, 'class="fade-gradient" style="display:none"');
+    .replace(/Unlock >/g, '')
+    .replace(/Unlock this section >/g, '')
+    .replace(/Get Full Report - \$29 >/g, '')
+    .replace(/How to fix >/g, '');
 }
