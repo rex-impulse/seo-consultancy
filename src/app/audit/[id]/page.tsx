@@ -54,6 +54,8 @@ export default function AuditPage() {
   const [simProgress, setSimProgress] = useState(0);
   const [showTeaser, setShowTeaser] = useState(false);
   const [error, setError] = useState('');
+  const [email, setEmail] = useState('');
+  const [emailSaved, setEmailSaved] = useState(false);
 
   // Trigger the audit run + poll for status
   useEffect(() => {
@@ -105,14 +107,29 @@ export default function AuditPage() {
     }
   }, [audit]);
 
+  const handleSaveEmail = useCallback(async () => {
+    if (!email || !email.includes('@')) return;
+    try {
+      await fetch(`/api/audit/${id}/email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      setEmailSaved(true);
+    } catch {}
+  }, [id, email]);
+
   const handleUnlock = useCallback(async () => {
+    if (email && email.includes('@') && !emailSaved) {
+      await handleSaveEmail();
+    }
     try {
       const res = await fetch(`/api/audit/${id}/pay`, { method: 'POST' });
       const data = await res.json();
       if (data.checkout_url) window.location.href = data.checkout_url;
       else alert(data.error || 'Payment not available yet');
     } catch { alert('Error initiating payment'); }
-  }, [id]);
+  }, [id, email, emailSaved, handleSaveEmail]);
 
   if (error) {
     return (
@@ -256,19 +273,43 @@ export default function AuditPage() {
                 ))}
               </div>
 
-              {/* CTA */}
+              {/* Email + CTA */}
               <div className="text-center border border-neutral-900 rounded-md p-8">
                 <p className="text-sm font-semibold">This is just the preview.</p>
                 <p className="text-xs text-neutral-500 mt-2">
                   {teaser?.stats?.totalIssues || 15} issues found across 6 categories. Get specific fix instructions for each one.
                 </p>
+
+                {!audit?.email && !emailSaved ? (
+                  <div className="mt-6 max-w-xs mx-auto">
+                    <p className="text-[10px] text-neutral-600 mb-2">Get the free preview report emailed to you</p>
+                    <div className="flex gap-2">
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="you@email.com"
+                        className="flex-1 bg-neutral-900 border border-neutral-800 text-white text-xs px-3 py-2.5 rounded-md focus:outline-none focus:border-neutral-600 placeholder:text-neutral-700"
+                      />
+                      <button
+                        onClick={handleSaveEmail}
+                        className="bg-neutral-800 text-white text-xs font-medium px-4 py-2.5 rounded-md hover:bg-neutral-700 transition-colors whitespace-nowrap"
+                      >
+                        Send
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-[10px] text-emerald-500 mt-4">Preview report sent to your email</p>
+                )}
+
                 <button
                   onClick={handleUnlock}
                   className="mt-6 w-full max-w-xs bg-white text-black text-sm font-medium py-3 rounded-md hover:bg-neutral-200 transition-colors"
                 >
-                  Unlock Full Report — $29
+                  Unlock Full Report - $29
                 </button>
-                <p className="text-[10px] text-neutral-700 mt-2">100% money-back guarantee · Agency equivalent: $500+</p>
+                <p className="text-[10px] text-neutral-700 mt-2">One-time payment. No subscription. Instant delivery.</p>
               </div>
             </div>
           </div>

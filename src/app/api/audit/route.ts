@@ -26,9 +26,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Please enter a valid website URL' }, { status: 400 });
     }
 
-    if (!email || !email.includes('@') || !email.includes('.')) {
-      return NextResponse.json({ error: 'Please enter a valid email address' }, { status: 400 });
-    }
+    // Email is optional — collected later on the results page
 
     const supabase = getServiceClient();
 
@@ -36,7 +34,7 @@ export async function POST(req: NextRequest) {
       .from('audits')
       .insert({
         url: normalizedUrl,
-        email: email.trim().toLowerCase(),
+        email: email ? email.trim().toLowerCase() : null,
         status: 'queued',
         progress: 0,
         current_step: 'Queued for analysis',
