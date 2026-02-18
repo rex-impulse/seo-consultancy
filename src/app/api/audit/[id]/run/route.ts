@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServiceClient } from '@/lib/supabase';
 
-const WORKER_URL = process.env.WORKER_URL || 'https://api.impulsestudios.cc/audit';
+// Caddy strips /audit prefix via handle_path, so worker sees paths without /audit
+const WORKER_URL = process.env.WORKER_URL || 'https://api.impulsestudios.cc/audit/audit';
 const WORKER_SECRET = process.env.WORKER_SECRET || 'impulse-audit-worker-2026';
 
 export async function POST(
