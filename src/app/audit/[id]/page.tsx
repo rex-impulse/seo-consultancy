@@ -55,9 +55,10 @@ export default function AuditPage() {
   const [showTeaser, setShowTeaser] = useState(false);
   const [error, setError] = useState('');
 
-  // Poll for status
+  // Trigger the audit run + poll for status
   useEffect(() => {
     if (!id) return;
+    let triggered = false;
     const poll = async () => {
       try {
         const res = await fetch(`/api/audit/${id}/status`);
@@ -66,6 +67,11 @@ export default function AuditPage() {
         setAudit(data);
         if (data.status === 'error') {
           setError(data.error_message || 'An error occurred during analysis');
+        }
+        // If still queued, trigger the run
+        if (data.status === 'queued' && !triggered) {
+          triggered = true;
+          fetch(`/api/audit/${id}/run`, { method: 'POST' }).catch(() => {});
         }
       } catch {
         setError('Audit not found');

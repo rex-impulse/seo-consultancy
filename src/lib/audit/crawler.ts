@@ -47,8 +47,12 @@ async function safeFetch(url: string, opts: RequestInit = {}): Promise<Response 
   try {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), TIMEOUT);
-    // @ts-ignore — Node.js specific option to skip SSL validation for audit purposes
-    const fetchOpts: any = { ...opts, signal: controller.signal, redirect: 'follow' };
+    const headers = {
+      'User-Agent': 'Mozilla/5.0 (compatible; ImpulseAuditBot/1.0; +https://seo.impulsestudios.cc)',
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+      ...(opts.headers || {}),
+    };
+    const fetchOpts: any = { ...opts, headers, signal: controller.signal, redirect: 'follow' };
     const res = await fetch(url, fetchOpts);
     clearTimeout(timer);
     return res;

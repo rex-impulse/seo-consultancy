@@ -52,19 +52,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Failed to create audit' }, { status: 500 });
     }
 
-    // Return immediately, then run the pipeline
-    // Use waitUntil pattern — since Next.js doesn't support it natively in route handlers,
-    // we trigger the run endpoint via fetch
-    const origin = req.headers.get('host');
-    const protocol = req.headers.get('x-forwarded-proto') || 'https';
-    const baseUrl = `${protocol}://${origin}`;
-    
-    // Fire and forget — don't await
-    fetch(`${baseUrl}/api/audit/${data.id}/run`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-    }).catch(err => console.error('Failed to trigger audit:', err));
-
+    // Return ID immediately so client can redirect to progress page.
+    // The progress page will trigger /api/audit/[id]/run to start the pipeline.
     return NextResponse.json({
       id: data.id,
       status: 'queued',
