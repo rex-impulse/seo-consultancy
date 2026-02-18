@@ -1,0 +1,23 @@
+User-agent: *
+Allow: /
+
+# We welcome AI crawlers
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: GoogleOther
+Allow: /
+
+Sitemap: https://seo.impulsestudios.cc/sitemap.xml
