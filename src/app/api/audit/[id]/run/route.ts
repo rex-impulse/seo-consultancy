@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServiceClient } from '@/lib/supabase';
-import { runAuditPipeline } from '@/lib/audit/pipeline';
 
-export const maxDuration = 120; // Vercel function timeout
+const WORKER_URL = process.env.WORKER_URL || 'https://api.impulsestudios.cc/audit';
+const WORKER_SECRET = process.env.WORKER_SECRET || 'impulse-audit-worker-2026';
 
 export async function POST(
   req: NextRequest,
@@ -10,7 +10,6 @@ export async function POST(
 ) {
   const supabase = getServiceClient();
   
-  // Get audit record
   const { data: audit, error } = await supabase
     .from('audits')
     .select('id, url, status')
@@ -25,9 +24,26 @@ export async function POST(
     return NextResponse.json({ error: 'Audit already running or complete', status: audit.status }, { status: 400 });
   }
 
-  // Run pipeline (don't await — fire and forget for long-running)
-  // But on Vercel serverless we need to await since the function dies otherwise
-  await runAuditPipeline(audit.id, audit.url);
+  // Dispatch to EC2 worker — fire and forget (worker responds 202 immediately)
+  try {
+    const res = await fetch(`${WORKER_URL}/run`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${WORKER_SECRET}`,
+      },
+      body: JSON.stringify({ auditId: audit.id, url: audit.url }),
+    });
 
-  return NextResponse.json({ status: 'complete' });
+    if (!res.ok) {
+      const err = await res.text();
+      console.error('Worker error:', err);
+      return NextResponse.json({ error: 'Worker failed to accept job' }, { status: 502 });
+    }
+
+    return NextResponse.json({ status: 'accepted' });
+  } catch (err: any) {
+    console.error('Worker unreachable:', err.message);
+    return NextResponse.json({ error: 'Audit worker unavailable' }, { status: 503 });
+  }
 }
