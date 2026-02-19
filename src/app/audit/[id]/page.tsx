@@ -222,10 +222,11 @@ export default function AuditPage() {
               ))}
             </div>
 
-            {/* Issues */}
+            {/* 1. Issues Found */}
             {topIssues.length > 0 && (
-              <div className="py-6 border-b border-gray-100">
-                <p className="text-[11px] text-gray-400 uppercase tracking-wider mb-4">Issues Found</p>
+              <div className="py-8 border-b border-gray-100">
+                <h2 className="text-sm font-semibold text-gray-900 mb-1">Issues Found</h2>
+                <p className="text-[12px] text-gray-400 mb-5">{topIssues.length} issues detected across {categories.length} categories</p>
                 <div className="space-y-3">
                   {topIssues.slice(0, 5).map((issue: any, i: number) => (
                     <div key={i} className="flex items-start gap-3">
@@ -242,47 +243,56 @@ export default function AuditPage() {
               </div>
             )}
 
-            {/* Teaser PDF Download */}
-            <div className="py-6 border-b border-gray-100">
-              <a
-                href={`/api/audit/${id}/pdf?type=teaser`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-between border border-gray-200 rounded-md p-4 hover:bg-gray-50 transition-colors"
-              >
-                <div>
-                  <p className="text-[13px] font-medium text-gray-900">Preview Report (PDF)</p>
-                  <p className="text-[11px] text-gray-400 mt-0.5">20-page teaser with blurred sections</p>
-                </div>
-                <span className="text-[12px] text-gray-500 font-medium shrink-0 ml-4">Download</span>
-              </a>
-            </div>
-
-            {/* What's in the full report */}
-            <div className="py-6 border-b border-gray-100">
-              <p className="text-[11px] text-gray-400 uppercase tracking-wider mb-4">Full Report Includes</p>
-              <div className="space-y-1.5">
+            {/* 2. Full Report Includes */}
+            <div className="py-8 border-b border-gray-100">
+              <h2 className="text-sm font-semibold text-gray-900 mb-1">Full Report Includes</h2>
+              <p className="text-[12px] text-gray-400 mb-5">20 pages of analysis with actionable fixes</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {[
-                  `${teaser?.stats?.quickWins || 5} quick wins you can fix this week`,
-                  'AI search deep dive - why ChatGPT skips your site',
-                  `${teaser?.stats?.totalIssues || 15}+ technical issues with code fixes`,
-                  'Page-by-page content audit with rewritten copy',
-                  'Competitor comparison - head-to-head with top 5',
-                  '90-day action plan with priority matrix',
+                  { title: 'Quick Wins', desc: `${teaser?.stats?.quickWins || 5} fixes you can do this week` },
+                  { title: 'AI Search Analysis', desc: 'Why ChatGPT skips your site' },
+                  { title: 'Technical Audit', desc: `${teaser?.stats?.totalIssues || 15}+ issues with code fixes` },
+                  { title: 'Content Review', desc: 'Page-by-page audit with rewritten copy' },
+                  { title: 'Competitor Comparison', desc: 'Head-to-head with top 5 in your space' },
+                  { title: '90-Day Action Plan', desc: 'Prioritized roadmap with impact scores' },
                 ].map((item, i) => (
-                  <div key={i} className="flex items-center gap-2.5 py-1.5">
-                    <span className="w-1 h-1 bg-gray-300 rounded-full shrink-0" />
-                    <span className="text-[13px] text-gray-500">{item}</span>
+                  <div key={i} className="bg-gray-50 rounded-md p-3.5">
+                    <p className="text-[13px] font-medium text-gray-900">{item.title}</p>
+                    <p className="text-[11px] text-gray-400 mt-0.5">{item.desc}</p>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Email + CTA */}
-            <div className="pt-8 text-center">
+            {/* 3. Preview PDF Download */}
+            <div className="py-8">
+              <h2 className="text-sm font-semibold text-gray-900 mb-1">Preview Report</h2>
+              <p className="text-[12px] text-gray-400 mb-4">Download the 20-page preview with sample analysis</p>
+              <a
+                href={`/api/audit/${id}/pdf?type=teaser`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-4 border-2 border-gray-200 rounded-lg p-5 hover:border-gray-300 hover:bg-gray-50 transition-all"
+              >
+                <div className="w-10 h-10 bg-gray-100 rounded-md flex items-center justify-center shrink-0">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-500">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="12" y1="18" x2="12" y2="12" />
+                    <polyline points="9 15 12 18 15 15" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-gray-900">Download Preview PDF</p>
+                  <p className="text-[12px] text-gray-400 mt-0.5">20 pages - includes blurred sections</p>
+                </div>
+                <span className="text-[13px] text-gray-900 font-medium shrink-0 bg-gray-100 px-3 py-1.5 rounded-md">PDF</span>
+              </a>
+
+              {/* Email capture below PDF */}
               {!audit?.email && !emailSaved ? (
-                <div className="mb-6 max-w-sm mx-auto">
-                  <p className="text-[12px] text-gray-400 mb-2">Get the free preview emailed to you</p>
+                <div className="mt-5 max-w-md mx-auto">
+                  <p className="text-[12px] text-gray-400 mb-2 text-center">Or get it emailed to you</p>
                   <div className="flex gap-2">
                     <input
                       type="email"
@@ -300,16 +310,8 @@ export default function AuditPage() {
                   </div>
                 </div>
               ) : (
-                <p className="text-[12px] text-emerald-600 mb-6">Preview report sent to your email</p>
+                <p className="text-[12px] text-emerald-600 mt-4 text-center">Preview report sent to your email</p>
               )}
-
-              <button
-                onClick={handleUnlock}
-                className="w-full max-w-sm bg-gray-900 text-white text-sm font-semibold py-3.5 rounded-md hover:bg-gray-800 transition-colors"
-              >
-                Unlock Full Report - $29
-              </button>
-              <p className="text-[11px] text-gray-400 mt-3">One-time payment. Instant PDF delivery. No subscription.</p>
             </div>
           </div>
         )}
