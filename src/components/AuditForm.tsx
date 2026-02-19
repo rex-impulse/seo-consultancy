@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 export default function AuditForm() {
   const router = useRouter();
   const [url, setUrl] = useState('');
+  const [email, setEmail] = useState('');
+  const [showEmail, setShowEmail] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -20,9 +22,20 @@ export default function AuditForm() {
     }
   }
 
+  function handleUrlSubmit() {
+    if (url && isValidUrl(url)) {
+      setShowEmail(true);
+      setError('');
+    } else if (url) {
+      setError('Enter a valid URL (e.g. yoursite.com)');
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!url || !isValidUrl(url)) { setError('Enter a valid URL (e.g. yoursite.com)'); return; }
+    if (!showEmail) { handleUrlSubmit(); return; }
+    if (!isValidUrl(url)) { setError('Enter a valid URL'); return; }
+    if (!email || !email.includes('@')) { setError('Enter your email to receive the report'); return; }
 
     setLoading(true);
     setError('');
@@ -31,7 +44,7 @@ export default function AuditForm() {
       const res = await fetch('/api/audit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url }),
+        body: JSON.stringify({ url, email }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Something went wrong');
@@ -43,7 +56,7 @@ export default function AuditForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-lg mx-auto">
+    <form onSubmit={handleSubmit} className="w-full max-w-lg mx-auto space-y-3">
       <div className="flex flex-col sm:flex-row gap-3">
         <input
           type="text"
@@ -52,16 +65,45 @@ export default function AuditForm() {
           placeholder="yourwebsite.com"
           className="flex-1 bg-neutral-900 border border-neutral-800 text-white text-sm px-4 py-3 rounded-md focus:outline-none focus:border-neutral-600 placeholder:text-neutral-600"
         />
-        <button
-          type="submit"
-          disabled={loading}
-          className="bg-white text-black text-sm font-medium px-6 py-3 rounded-md hover:bg-neutral-200 disabled:opacity-40 transition-colors whitespace-nowrap"
-        >
-          {loading ? 'Starting...' : 'Audit My Site'}
-        </button>
+        {!showEmail && (
+          <button
+            type="button"
+            onClick={handleUrlSubmit}
+            className="bg-white text-black text-sm font-medium px-6 py-3 rounded-md hover:bg-neutral-200 transition-colors whitespace-nowrap"
+          >
+            Audit My Site
+          </button>
+        )}
       </div>
+
+      {showEmail && (
+        <div className="flex flex-col sm:flex-row gap-3">
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@email.com"
+            className="flex-1 bg-neutral-900 border border-neutral-800 text-white text-sm px-4 py-3 rounded-md focus:outline-none focus:border-neutral-600 placeholder:text-neutral-600"
+            autoFocus
+          />
+          <button
+            type="submit"
+            disabled={loading}
+            className="bg-white text-black text-sm font-medium px-6 py-3 rounded-md hover:bg-neutral-200 disabled:opacity-40 transition-colors whitespace-nowrap"
+          >
+            {loading ? 'Starting...' : 'Get Free Audit'}
+          </button>
+        </div>
+      )}
+
+      {showEmail && (
+        <p className="text-[10px] text-neutral-700 text-center">
+          We&apos;ll send your report here. No spam.
+        </p>
+      )}
+
       {error && (
-        <p className="text-xs text-red-400 text-center mt-2">{error}</p>
+        <p className="text-xs text-red-400 text-center">{error}</p>
       )}
     </form>
   );
