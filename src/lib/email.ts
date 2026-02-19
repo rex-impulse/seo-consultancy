@@ -3,13 +3,19 @@ import { Resend } from 'resend';
 const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM = 'DevHyde SEO Reports <reports@devhyde.cc>';
 
-export async function sendTeaserEmail(to: string, auditId: string, url: string, grade: string, score: number) {
+export async function sendTeaserEmail(to: string, auditId: string, url: string, grade: string, score: number, pdfBuffer?: Buffer) {
   const reportUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/audit/${auditId}`;
   
   await resend.emails.send({
     from: FROM,
     to,
     subject: `Your SEO Audit is Ready: ${url} scored ${grade} (${score}/100)`,
+    ...(pdfBuffer ? {
+      attachments: [{
+        filename: `seo-audit-preview-${url.replace(/https?:\/\//, '').replace(/[^a-z0-9]/gi, '-')}.pdf`,
+        content: pdfBuffer,
+      }],
+    } : {}),
     html: `
       <div style="font-family:-apple-system,sans-serif;max-width:600px;margin:0 auto;color:#111827">
         <div style="padding:32px 0;border-bottom:1px solid #e5e7eb">

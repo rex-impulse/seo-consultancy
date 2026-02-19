@@ -62,9 +62,9 @@ p,.txt{font-size:13px;color:#374151;line-height:1.6;margin-bottom:5px}
 .fade-blur{position:relative;overflow:hidden;flex:1;min-height:280px}
 .fade-blur-inner{filter:blur(4px);user-select:none;pointer-events:none;opacity:0.35;padding-bottom:60px}
 .fade-gradient{position:absolute;top:0;left:0;right:0;height:40px;background:linear-gradient(to bottom,white,transparent);z-index:1}
-.fade-lock{position:absolute;bottom:30px;left:0;right:0;text-align:center;z-index:2}
-.fade-lock .fl-txt{font-size:14px;font-weight:700;color:#111827;background:white;display:inline-block;padding:8px 20px;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,0.12)}
-.fade-lock .fl-sub{font-size:11px;color:#6b7280;margin-top:4px}
+.fade-lock{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;z-index:2}
+.fade-lock .fl-txt{font-size:13px;font-weight:600;color:#374151;display:block}
+.fade-lock .fl-sub{font-size:12px;color:#6b7280;margin-top:3px}
 .cta{background:#111827;color:white;padding:16px;border-radius:6px;text-align:center;margin-top:14px}
 .cta h3{color:white;font-size:16px;margin-bottom:5px}
 .cta p{color:#9ca3af;font-size:12px;margin-bottom:10px}

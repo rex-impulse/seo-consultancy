@@ -23,12 +23,24 @@ export async function GET(
   // Send teaser email once when audit completes
   if (data.status === 'complete' && data.email && !data.teaser_email_sent) {
     try {
+      // Generate teaser PDF to attach
+      let pdfBuffer: Buffer | undefined;
+      try {
+        const pdfRes = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/audit/${data.id}/pdf?type=teaser`);
+        if (pdfRes.ok) {
+          pdfBuffer = Buffer.from(await pdfRes.arrayBuffer());
+        }
+      } catch (pdfErr) {
+        console.error('PDF generation for email failed:', pdfErr);
+      }
+
       await sendTeaserEmail(
         data.email,
         data.id,
         data.url,
         data.overall_grade,
-        data.overall_score
+        data.overall_score,
+        pdfBuffer
       );
       await supabase
         .from('audits')
