@@ -43,6 +43,7 @@ export async function GET(
     issues: audit.full_data?.issues || [],
     aiAnalysis: audit.full_data?.aiAnalysis || null,
     screenshots: audit.full_data?.screenshots || null,
+    pages: audit.full_data?.crawl?.pages || [],
   };
 
   // Generate HTML

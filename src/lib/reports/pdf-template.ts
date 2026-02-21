@@ -1,7 +1,8 @@
 /**
- * Professional 20-page PDF report
+ * Professional PDF report (typically 20-30 pages, dynamic based on content)
  * Page 1: Hook page - grade, scary stat, proof we know their site
- * Pages 2-20: Each shows ~30% real content, then fades to blur mid-sentence
+ * Page 1.5: Per-page analysis (unblurred, shows all crawled pages)
+ * Remaining pages: Mix of visible and blurred sections with unlock prompts
  */
 
 interface ReportData {
@@ -14,6 +15,14 @@ interface ReportData {
   issues: Array<{ severity: string; title: string; description: string }>;
   aiAnalysis?: any;
   screenshots?: { desktop?: string; mobile?: string };
+  pages?: Array<{
+    url: string;
+    title: string;
+    wordCount: number;
+    isThinContent: boolean;
+    hasFaqContent: boolean;
+    metaDescription?: string;
+  }>;
 }
 
 function gc(grade: string): string {
@@ -27,8 +36,9 @@ const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Inter',-apple-system,sans-serif;color:#111827;background:white;line-height:1.6;font-size:15px}
-.pg{width:100%;min-height:100vh;padding:36px 48px 40px;position:relative;page-break-after:always;display:flex;flex-direction:column}
+.pg{width:100%;min-height:100vh;padding:60px 48px 40px;position:relative;page-break-after:always;page-break-inside:avoid;display:flex;flex-direction:column}
 .pg:last-child{page-break-after:auto}
+@media print{.pg{padding-top:60px;margin-top:0}}
 .hdr{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:12px;border-bottom:2px solid #111827;margin-bottom:16px}
 .hdr h1{font-size:22px;font-weight:800;letter-spacing:-0.5px}
 .hdr .sub{font-size:13px;color:#6b7280;margin-top:2px}
@@ -104,7 +114,7 @@ function fadePage(pageNum: number, title: string, visibleHtml: string, blurredHt
         </div>
         <div class="fade-lock">
           <div class="fl-txt">${lockMsg}</div>
-          <a class="fl-sub" href="https://seo.impulsestudios.cc/api/audit/${_auditId}/checkout" style="color:#6b7280;text-decoration:underline;cursor:pointer">Unlock full report - $0.50 →</a>
+          <a class="fl-sub" href="https://seo.impulsestudios.cc/api/audit/${_auditId}/checkout" style="color:#6b7280;text-decoration:underline;cursor:pointer">Unlock full report →</a>
         </div>
       </div>
     </div>
@@ -190,7 +200,7 @@ export function renderTeaserPdfHtml(data: ReportData): string {
   <div class="sec">
     <h2>Key Metrics</h2>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
-      <div class="finding"><div class="f-label">Pages Analyzed</div><div class="f-text">${(data.aiAnalysis?.pages || data.issues || []).length || 2}</div></div>
+      <div class="finding"><div class="f-label">Pages Analyzed</div><div class="f-text">${(data.pages || []).length || 2}</div></div>
       <div class="finding"><div class="f-label">Load Time (LCP)</div><div class="f-text" style="color:#dc2626">${((data.issues.find(i => i.title.includes('Slow'))?.description || '').match(/LCP: ([0-9.]+)s/) || ['','?'])[1]}s</div></div>
       <div class="finding"><div class="f-label">Issues Found</div><div class="f-text" style="color:#ca8a04">${issues.length}</div></div>
     </div>
@@ -212,6 +222,44 @@ export function renderTeaserPdfHtml(data: ReportData): string {
 
   <div class="pn">1</div>
 </div>
+
+<!-- PAGE 1.5: Per-Page Analysis (UNBLURRED) -->
+${(data.pages && data.pages.length > 0) ? `
+<div class="pg">
+  <h2>Pages We Analyzed</h2>
+  <p style="margin-bottom:12px;color:#374151;font-size:14px">Here's what we found on each page of your site. This gives you a quick overview of content quality and key issues.</p>
+  
+  ${data.pages.map((page, idx) => {
+    const issues = [];
+    if (page.isThinContent) issues.push('Thin content (<300 words)');
+    if (!page.hasFaqContent && idx === 0) issues.push('No FAQ content');
+    if (!page.metaDescription || page.metaDescription.length < 50) issues.push('Missing/short meta description');
+    
+    return `
+    <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:6px;padding:12px;margin-bottom:10px;${idx >= 8 ? 'page-break-inside:avoid' : ''}">
+      <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:4px">
+        <div style="flex-shrink:0;width:24px;height:24px;background:#111827;color:white;font-size:12px;font-weight:700;border-radius:4px;display:flex;align-items:center;justify-content:center">${idx + 1}</div>
+        <div style="flex:1">
+          <div style="font-size:15px;font-weight:700;color:#111827;margin-bottom:2px">${page.title || 'Untitled Page'}</div>
+          <div style="font-size:11px;color:#6b7280;margin-bottom:6px;word-break:break-all">${page.url}</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:6px;margin-bottom:${issues.length > 0 ? '8px' : '0'}">
+            <div style="font-size:12px;color:#374151"><span style="font-weight:600">Words:</span> ${page.wordCount}</div>
+            ${page.metaDescription ? `<div style="font-size:12px;color:#374151"><span style="font-weight:600">Meta:</span> ${page.metaDescription.length} chars</div>` : ''}
+            ${page.hasFaqContent ? `<div style="font-size:12px;color:#16a34a;font-weight:600">✓ FAQ content</div>` : ''}
+          </div>
+          ${issues.length > 0 ? `
+          <div style="display:flex;flex-wrap:wrap;gap:4px">
+            ${issues.map(i => `<span style="display:inline-block;padding:2px 6px;border-radius:3px;font-size:10px;font-weight:600;background:#fef2f2;color:#dc2626;border:1px solid #fecaca">${i}</span>`).join('')}
+          </div>
+          ` : ''}
+        </div>
+      </div>
+    </div>`;
+  }).join('')}
+  
+  <div class="pn">${data.pages.length <= 5 ? '2' : data.pages.length <= 10 ? '2-3' : '2-' + Math.ceil(2 + data.pages.length / 4)}</div>
+</div>
+` : ''}
 
 <!-- PAGE 2: Issues Detail (show first issue fully, fade on second) -->
 <div class="pg">
@@ -601,8 +649,8 @@ ${fadePage(19, 'Implementation Checklist',
     </p>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:500px;margin:20px auto;text-align:left">
-      <div class="finding"><div class="f-label">Free preview</div><div class="f-text">2 pages | Issues identified</div></div>
-      <div class="finding" style="border-color:#16a34a;background:#f0fdf4"><div class="f-label" style="color:#16a34a">Full report</div><div class="f-text">20 pages | Step-by-step fixes</div></div>
+      <div class="finding"><div class="f-label">Free preview</div><div class="f-text">Key issues identified</div></div>
+      <div class="finding" style="border-color:#16a34a;background:#f0fdf4"><div class="f-label" style="color:#16a34a">Full report</div><div class="f-text">Complete step-by-step fixes</div></div>
     </div>
 
     <div style="max-width:500px;margin:16px auto;text-align:left">
@@ -621,9 +669,10 @@ ${fadePage(19, 'Implementation Checklist',
     ` : ''}
 
     <div class="cta" style="max-width:500px;margin:16px auto">
-      <h3>Unlock Your Full Report</h3>
-      <p>One-time payment. No subscription. Instant delivery.</p>
-      <a href="https://seo.impulsestudios.cc/api/audit/${data.auditId}/checkout" class="cta-btn">Get Full Report - $0.50</a>
+      <h3>Ready to Fix These Issues?</h3>
+      <p style="margin-bottom:8px">We'll implement the fixes for you. Professional SEO implementation starting at $199.</p>
+      <p style="font-size:12px;margin-bottom:12px">Reply to your report email or contact <strong>reports@devhyde.cc</strong></p>
+      <a href="https://seo.impulsestudios.cc/api/audit/${data.auditId}/checkout" class="cta-btn">Get Started →</a>
     </div>
   </div>
 
