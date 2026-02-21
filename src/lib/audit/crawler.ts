@@ -1,4 +1,5 @@
 import * as cheerio from 'cheerio';
+import { chromium, Browser } from 'playwright';
 
 export interface CrawlResult {
   pages: PageData[];
@@ -41,8 +42,9 @@ export interface SitemapData {
 }
 
 const TIMEOUT = 10000;
-const MAX_PAGES = 10;
+const MAX_PAGES = 20;
 
+// Simple fetch for robots.txt, sitemap.xml, etc. (no JS execution needed)
 async function safeFetch(url: string, opts: RequestInit = {}): Promise<Response | null> {
   try {
     const controller = new AbortController();
@@ -71,6 +73,29 @@ async function safeFetch(url: string, opts: RequestInit = {}): Promise<Response 
       }
     }
     return null;
+  }
+}
+
+// Playwright fetch for pages that may have JS-rendered content
+async function playwrightFetchPage(browser: Browser, url: string): Promise<{ html: string; status: number } | null> {
+  let page;
+  try {
+    page = await browser.newPage();
+    await page.setViewportSize({ width: 1280, height: 720 });
+    const response = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: TIMEOUT });
+    if (!response) return null;
+    
+    // Wait a bit for JS to execute
+    await page.waitForTimeout(1000);
+    
+    const html = await page.content();
+    const status = response.status();
+    
+    return { html, status };
+  } catch (err) {
+    return null;
+  } finally {
+    if (page) await page.close().catch(() => {});
   }
 }
 
@@ -243,62 +268,80 @@ async function checkSitemap(origin: string): Promise<SitemapData> {
 
 export async function crawlSite(inputUrl: string, onProgress?: (msg: string) => void): Promise<CrawlResult> {
   const origin = extractDomain(inputUrl);
+  let browser: Browser | null = null;
   
-  onProgress?.('Checking robots.txt and sitemap...');
-  const [robotsTxt, sitemap] = await Promise.all([
-    checkRobotsTxt(origin),
-    checkSitemap(origin),
-  ]);
+  try {
+    onProgress?.('Checking robots.txt and sitemap...');
+    const [robotsTxt, sitemap] = await Promise.all([
+      checkRobotsTxt(origin),
+      checkSitemap(origin),
+    ]);
 
-  // Check SSL
-  const ssl = inputUrl.startsWith('https://') || origin.startsWith('https://');
+    // Check SSL
+    const ssl = inputUrl.startsWith('https://') || origin.startsWith('https://');
 
-  // Crawl homepage
-  onProgress?.('Crawling homepage...');
-  const homeRes = await safeFetch(inputUrl, {
-    headers: { 'User-Agent': 'RankSight-Audit/1.0 (+https://seo.impulsestudios.cc)' },
-  });
+    // Launch Playwright browser
+    onProgress?.('Starting browser...');
+    browser = await chromium.launch({ headless: true });
 
-  if (!homeRes || !homeRes.ok) {
-    return { pages: [], robotsTxt, sitemap, ssl };
-  }
+    // Crawl homepage
+    onProgress?.('Crawled 1/' + MAX_PAGES + ' pages...');
+    const homeResult = await playwrightFetchPage(browser, inputUrl);
 
-  const homeHtml = await homeRes.text();
-  const homePage = parsePage(inputUrl, homeHtml, origin);
-  const pages: PageData[] = [homePage];
-
-  // Discover and crawl internal pages
-  const $ = cheerio.load(homeHtml);
-  const internalUrls: string[] = [];
-  $('a[href]').each((_, el) => {
-    const href = $(el).attr('href');
-    if (!href) return;
-    if (isInternalLink(href, origin)) {
-      try {
-        const resolved = new URL(href, origin).href.split('#')[0].split('?')[0];
-        if (resolved !== inputUrl && !internalUrls.includes(resolved) && !resolved.match(/\.(jpg|jpeg|png|gif|svg|pdf|zip|css|js)$/i)) {
-          internalUrls.push(resolved);
-        }
-      } catch { /* ignore */ }
+    if (!homeResult || homeResult.status >= 400) {
+      await browser.close();
+      return { pages: [], robotsTxt, sitemap, ssl };
     }
-  });
 
-  // Crawl up to MAX_PAGES-1 internal pages
-  const toCrawl = internalUrls.slice(0, MAX_PAGES - 1);
-  for (let i = 0; i < toCrawl.length; i++) {
-    onProgress?.(`Crawling page ${i + 2}/${toCrawl.length + 1}...`);
-    const res = await safeFetch(toCrawl[i], {
-      headers: { 'User-Agent': 'RankSight-Audit/1.0 (+https://seo.impulsestudios.cc)' },
+    const homePage = parsePage(inputUrl, homeResult.html, origin);
+    homePage.status = homeResult.status;
+    const pages: PageData[] = [homePage];
+
+    // Discover internal links from homepage
+    const $ = cheerio.load(homeResult.html);
+    const internalUrls: string[] = [];
+    $('a[href]').each((_, el) => {
+      const href = $(el).attr('href');
+      if (!href) return;
+      if (isInternalLink(href, origin)) {
+        try {
+          const resolved = new URL(href, origin).href.split('#')[0].split('?')[0];
+          if (resolved !== inputUrl && !internalUrls.includes(resolved) && !resolved.match(/\.(jpg|jpeg|png|gif|svg|pdf|zip|css|js)$/i)) {
+            internalUrls.push(resolved);
+          }
+        } catch { /* ignore */ }
+      }
     });
-    if (res && res.ok) {
-      try {
-        const html = await res.text();
-        const page = parsePage(toCrawl[i], html, origin);
-        page.status = res.status;
-        pages.push(page);
-      } catch { /* skip */ }
-    }
-  }
 
-  return { pages, robotsTxt, sitemap, ssl };
+    // Add sitemap URLs to crawl queue
+    const sitemapUrls = sitemap.urls
+      .filter(url => url.startsWith(origin)) // Only crawl same-origin URLs
+      .filter(url => !url.match(/\.(jpg|jpeg|png|gif|svg|pdf|zip|css|js)$/i))
+      .filter(url => url !== inputUrl && !internalUrls.includes(url));
+    
+    internalUrls.push(...sitemapUrls);
+
+    // Crawl up to MAX_PAGES-1 internal pages
+    const toCrawl = internalUrls.slice(0, MAX_PAGES - 1);
+    for (let i = 0; i < toCrawl.length; i++) {
+      onProgress?.(`Crawled ${i + 2}/${Math.min(MAX_PAGES, toCrawl.length + 1)} pages...`);
+      const result = await playwrightFetchPage(browser, toCrawl[i]);
+      if (result && result.status < 400) {
+        try {
+          const page = parsePage(toCrawl[i], result.html, origin);
+          page.status = result.status;
+          pages.push(page);
+        } catch { /* skip */ }
+      }
+    }
+
+    // Show limit message if we hit it
+    if (toCrawl.length >= MAX_PAGES - 1) {
+      onProgress?.(`${MAX_PAGES} page limit reached. Need a deeper audit? Contact reports@devhyde.cc`);
+    }
+
+    return { pages, robotsTxt, sitemap, ssl };
+  } finally {
+    if (browser) await browser.close().catch(() => {});
+  }
 }

@@ -194,6 +194,23 @@ export default function AuditPage() {
                   </span>
                 </div>
               ))}
+              {/* Show live crawl progress from backend */}
+              {audit?.current_step && /Crawled \d+/.test(audit.current_step) && (
+                <div className="flex items-center gap-3 text-[13px] mt-3 pt-3 border-t border-gray-100">
+                  <span className="w-1.5 h-1.5 bg-gray-900 rounded-full animate-pulse" />
+                  <span className="text-gray-900 font-medium">{audit.current_step}</span>
+                </div>
+              )}
+              {/* CTA when page limit hit */}
+              {audit?.current_step && /limit reached/.test(audit.current_step) && (
+                <div className="mt-4 pt-3 border-t border-gray-100">
+                  <p className="text-[12px] text-gray-500">{audit.current_step}</p>
+                  <p className="text-[12px] text-gray-400 mt-1">
+                    Need a deeper audit?{' '}
+                    <a href="mailto:reports@devhyde.cc" className="text-gray-900 underline hover:no-underline">Contact reports@devhyde.cc</a>
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         ) : (
