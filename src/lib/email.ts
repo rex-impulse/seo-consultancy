@@ -46,7 +46,7 @@ export async function sendTeaserEmail(to: string, auditId: string, url: string, 
           <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:16px;margin:16px 0">
             <p style="font-size:14px;font-weight:600;color:#991b1b;margin:0 0 4px">Ready to fix everything?</p>
             <p style="font-size:13px;color:#7f1d1d;margin:0">
-              Unlock the full 20-page report with code examples, rewritten copy, and a prioritized action plan for just $29.
+              Unlock the full 20-page report with code examples, rewritten copy, and a prioritized action plan for just $0.50.
             </p>
           </div>
         </div>

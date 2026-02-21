@@ -101,7 +101,7 @@ function fadePage(pageNum: number, title: string, visibleHtml: string, blurredHt
         </div>
         <div class="fade-lock">
           <div class="fl-txt">${lockMsg}</div>
-          <div class="fl-sub">Available in the full report - $29</div>
+          <div class="fl-sub">Available in the full report - $0.50</div>
         </div>
       </div>
     </div>
@@ -619,7 +619,7 @@ ${fadePage(19, 'Implementation Checklist',
     <div class="cta" style="max-width:500px;margin:16px auto">
       <h3>Unlock Your Full Report</h3>
       <p>One-time payment. No subscription. Instant delivery.</p>
-      <a href="https://seo.impulsestudios.cc" class="cta-btn">Get Full Report - $29</a>
+      <a href="https://seo.impulsestudios.cc" class="cta-btn">Get Full Report - $0.50</a>
     </div>
   </div>
 

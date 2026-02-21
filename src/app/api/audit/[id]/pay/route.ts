@@ -33,7 +33,7 @@ export async function POST(
             name: `Full SEO & GEO Audit Report`,
             description: `Comprehensive audit for ${audit.url}`,
           },
-          unit_amount: 2900,
+          unit_amount: 50,
         },
         quantity: 1,
       }],

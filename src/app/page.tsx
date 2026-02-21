@@ -79,7 +79,7 @@ export default function Home() {
             {[
               { num: '01', title: 'Enter your URL', desc: 'Paste your website address. We handle everything else.' },
               { num: '02', title: 'Get your score', desc: 'In minutes, see your AI readiness grade, top issues, and a preview of the full report.' },
-              { num: '03', title: 'Unlock the full report', desc: '15–20 pages of analysis with specific fix instructions. $29 one-time.' },
+              { num: '03', title: 'Unlock the full report', desc: '15–20 pages of analysis with specific fix instructions. $0.50 one-time.' },
             ].map((step) => (
               <div key={step.num} className="flex gap-6 items-start">
                 <span className="text-3xl font-bold text-neutral-800 font-mono">{step.num}</span>
@@ -164,7 +164,7 @@ export default function Home() {
                 <h3 className="text-sm font-semibold">Full Report</h3>
                 <span className="text-[10px] font-mono text-neutral-600 border border-neutral-800 px-1.5 py-0.5 rounded">RECOMMENDED</span>
               </div>
-              <p className="text-3xl font-bold mt-2">$29</p>
+              <p className="text-3xl font-bold mt-2">$0.50</p>
               <div className="mt-6 space-y-2 text-xs text-neutral-400">
                 <p className="flex items-center gap-2"><span className="text-neutral-600 font-mono">+</span>Everything in Free, plus:</p>
                 <p className="flex items-center gap-2"><span className="text-neutral-600 font-mono">+</span>15–20 page deep analysis</p>
@@ -178,7 +178,7 @@ export default function Home() {
                 Equivalent agency report: <span className="line-through">$500+</span>
               </p>
               <a href="#hero" className="block mt-4 text-center bg-white text-black text-xs font-medium py-2.5 rounded-md hover:bg-neutral-200 transition-colors">
-                Get Full Report — $29
+                Get Full Report — $0.50
               </a>
               <p className="text-[10px] text-neutral-700 text-center mt-2">100% money-back guarantee</p>
             </div>
