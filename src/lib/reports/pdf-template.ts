@@ -7,6 +7,7 @@
 interface ReportData {
   url: string;
   date: string;
+  auditId?: string;
   overallScore: number;
   overallGrade: string;
   categories: Record<string, { score: number; grade: string }>;
@@ -87,6 +88,8 @@ function bar(score: number, label: string, grade: string): string {
   return `<div><div class="sr"><span class="sl">${label}</span><span class="sv" style="color:${gc(grade)}">${grade} | ${score}</span></div><div class="bt"><div class="bf" style="width:${score}%;background:${gc(grade)}"></div></div></div>`;
 }
 
+let _auditId = '';
+
 function fadePage(pageNum: number, title: string, visibleHtml: string, blurredHtml: string, lockMsg: string): string {
   return `
   <div class="pg">
@@ -101,7 +104,7 @@ function fadePage(pageNum: number, title: string, visibleHtml: string, blurredHt
         </div>
         <div class="fade-lock">
           <div class="fl-txt">${lockMsg}</div>
-          <div class="fl-sub">Available in the full report - $0.50</div>
+          <a class="fl-sub" href="https://seo.impulsestudios.cc/audit/${_auditId}" style="color:#6b7280;text-decoration:underline;cursor:pointer">Available in the full report - $0.50 →</a>
         </div>
       </div>
     </div>
@@ -110,6 +113,7 @@ function fadePage(pageNum: number, title: string, visibleHtml: string, blurredHt
 }
 
 export function renderTeaserPdfHtml(data: ReportData): string {
+  _auditId = data.auditId || '';
   const ai = data.aiAnalysis || {};
   const hl = ai.teaserHighlight || {};
   const cats = data.categories || {};
@@ -619,7 +623,7 @@ ${fadePage(19, 'Implementation Checklist',
     <div class="cta" style="max-width:500px;margin:16px auto">
       <h3>Unlock Your Full Report</h3>
       <p>One-time payment. No subscription. Instant delivery.</p>
-      <a href="https://seo.impulsestudios.cc" class="cta-btn">Get Full Report - $0.50</a>
+      <a href="https://seo.impulsestudios.cc/audit/${data.auditId}" class="cta-btn">Get Full Report - $0.50</a>
     </div>
   </div>
 

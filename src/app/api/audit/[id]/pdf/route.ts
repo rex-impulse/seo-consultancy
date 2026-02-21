@@ -27,6 +27,7 @@ export async function GET(
   // Build report data
   const reportData = {
     url: audit.url,
+    auditId: params.id,
     date: new Date(audit.created_at).toLocaleDateString('en-US', {
       year: 'numeric', month: 'long', day: 'numeric',
     }),
