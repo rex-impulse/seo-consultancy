@@ -97,9 +97,12 @@ export async function sendFullReportEmail(to: string, auditId: string, url: stri
             </a>
           </div>
           
-          <p style="font-size:13px;color:#6b7280;margin:16px 0">
-            Questions? Reply to this email and we'll help you implement the recommendations.
-          </p>
+          <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:16px 0">
+            <p style="font-size:14px;font-weight:600;color:#111827;margin:0 0 4px">Need help implementing?</p>
+            <p style="font-size:13px;color:#374151;margin:0">
+              Our team can handle every fix in this report — technical SEO, content rewrites, schema markup, everything. Implementation packages start at $199. Just reply to this email for a free quote.
+            </p>
+          </div>
         </div>
         
         <div style="padding:16px 0;border-top:1px solid #e5e7eb;font-size:12px;color:#9ca3af">
