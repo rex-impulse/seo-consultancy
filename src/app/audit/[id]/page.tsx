@@ -264,7 +264,41 @@ export default function AuditPage() {
               </div>
             </div>
 
-            {/* 3. Preview PDF Download */}
+            {/* 3. Unlock Full Report CTA */}
+            {!audit?.paid && (
+              <div className="py-8 border-b border-gray-100">
+                <div className="bg-gray-900 text-white rounded-lg p-6 text-center">
+                  <h2 className="text-base font-semibold">Get the Full Report</h2>
+                  <p className="text-[13px] text-gray-400 mt-1">20 pages with step-by-step fixes, code examples, and a 90-day action plan</p>
+                  <button
+                    onClick={handleUnlock}
+                    className="mt-4 bg-white text-gray-900 font-semibold text-sm px-8 py-3 rounded-md hover:bg-gray-100 transition-colors"
+                  >
+                    Unlock Full Report — $0.50
+                  </button>
+                  <p className="text-[11px] text-gray-500 mt-2">One-time payment · Delivered to your email as PDF</p>
+                </div>
+              </div>
+            )}
+
+            {/* Paid: Download full report */}
+            {audit?.paid && (
+              <div className="py-8 border-b border-gray-100">
+                <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-6 text-center">
+                  <p className="text-emerald-800 font-semibold text-sm">✓ Full report unlocked</p>
+                  <a
+                    href={`/api/audit/${id}/pdf?type=full`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-3 inline-block bg-gray-900 text-white font-semibold text-sm px-6 py-2.5 rounded-md hover:bg-gray-800 transition-colors"
+                  >
+                    Download Full Report PDF
+                  </a>
+                </div>
+              </div>
+            )}
+
+            {/* 4. Preview PDF Download */}
             <div className="py-8">
               <h2 className="text-sm font-semibold text-gray-900 mb-1">Preview Report</h2>
               <p className="text-[12px] text-gray-400 mb-4">Download the 20-page preview with sample analysis</p>

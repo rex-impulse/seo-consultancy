@@ -172,7 +172,7 @@ export function renderTeaserHtml(data: TeaserData): string {
   <div class="cta">
     <div class="cta-title">This is just the preview.</div>
     <div class="cta-desc">${data.stats.totalIssues} issues found. Get specific fix instructions for each one.</div>
-    <a class="cta-btn" href="https://seo.impulsestudios.cc/audit/${data.auditId}">Unlock Full Report — $0.50</a>
+    <a class="cta-btn" href="https://seo.impulsestudios.cc/api/audit/${data.auditId}/checkout">Unlock Full Report — $0.50</a>
     <div class="cta-sub">100% money-back guarantee · Agency equivalent: $500+</div>
   </div>
 
