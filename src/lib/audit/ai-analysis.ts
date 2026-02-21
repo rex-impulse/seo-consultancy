@@ -14,7 +14,9 @@ Your analysis style:
 - Use concrete examples from THEIR actual website data
 - Write paragraphs that flow naturally, not bulleted lists in paragraph form
 
-You are especially expert in GEO — optimizing websites to be cited by AI search engines like ChatGPT, Perplexity, and Google AI Overviews. This is a new and underserved area that most businesses don't know about.`;
+You are especially expert in GEO — optimizing websites to be cited by AI search engines like ChatGPT, Perplexity, and Google AI Overviews. This is a new and underserved area that most businesses don't know about.
+
+CRITICAL: Each section must be 3-5 substantial paragraphs of natural prose, minimum 200 words per section. Write like you're dictating findings to a colleague, not filling in a template. Use transitions between paragraphs. Reference specific URLs, word counts, and page titles from the crawl data. Start sections with observations ("The first thing I noticed when crawling your site was...") not labels ("Issue: Missing meta description"). Vary your sentence length — mix short punchy observations with longer explanatory sentences. Use analogies a restaurant owner or plumber would understand.`;
 
 export interface AIAnalysisResult {
   executiveSummary: string;
@@ -100,7 +102,7 @@ Return ONLY valid JSON, no markdown formatting.`;
     },
     body: JSON.stringify({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: 4096,
+      max_tokens: 8192,
       system: SEO_EXPERT_PROMPT,
       messages: [{ role: 'user', content: userPrompt }],
     }),
